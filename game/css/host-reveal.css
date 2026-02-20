@@ -1,0 +1,141 @@
+/* ===========================
+   css/host-reveal.css
+   Answer Reveal Screen
+   =========================== */
+
+/* Next button */
+.next-btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 9px 22px;
+  border-radius: 50px;
+  border: none;
+  background: #00D17A;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,209,122,0.45);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  white-space: nowrap;
+}
+.next-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,209,122,0.55);
+  filter: brightness(1.08);
+}
+
+/* Layout */
+.reveal-layout {
+  justify-content: flex-start;
+  padding-top: 6px;
+  gap: 12px;
+}
+
+/* Answer reveal list */
+.reveal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 680px;
+}
+
+/* Each answer row */
+.reveal-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: slideInRow 0.4s ease forwards;
+}
+
+.reveal-row:nth-child(1) { animation-delay: 0.05s; }
+.reveal-row:nth-child(2) { animation-delay: 0.15s; }
+.reveal-row:nth-child(3) { animation-delay: 0.25s; }
+.reveal-row:nth-child(4) { animation-delay: 0.35s; }
+
+@keyframes slideInRow {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Color variants */
+.reveal-row.ans-cyan   .reveal-main { background: #0083af; }
+.reveal-row.ans-red    .reveal-main { background: #FF3B6B; }
+.reveal-row.ans-purple .reveal-main { background: #C84BFF; }
+.reveal-row.ans-yellow .reveal-main { background: #FFB800; }
+
+/* Dim wrong answers */
+.reveal-row.wrong .reveal-main { filter: brightness(0.9); }
+.reveal-row.wrong .reveal-count { background: rgba(255, 255, 255, 0.35); }
+
+/* Correct glow */
+.reveal-row.correct {
+  box-shadow: 0 0 0 3px #fff, 0 6px 28px rgba(251, 0, 0, 0.25);
+}
+.reveal-row.correct .reveal-main { filter: brightness(1.1); }
+
+/* Main color section */
+.reveal-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  transition: filter 0.4s;
+}
+
+.reveal-icon {
+  font-size: 16px;
+  color: rgba(255,255,255,0.85);
+  flex-shrink: 0;
+}
+
+.reveal-text {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: clamp(25px, 2vw, 17px);
+  color: #fff;
+  flex: 1;
+}
+
+/* Crown for correct */
+.reveal-crown {
+  font-size: 30px;
+  flex-shrink: 0;
+  animation: crownPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;
+}
+@keyframes crownPop {
+  from { transform: scale(0) rotate(-20deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg);   opacity: 1; }
+}
+
+/* Count badge */
+.reveal-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 900;
+  font-size: 50px;
+  min-width: 52px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  transition: background 0.4s;
+  border-left: 2px solid rgba(255,255,255,0.15);
+}
+
+/* Bar fill behind text (optional visual) */
+.reveal-bar-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 30px 0 0 20px;
+  transition: width 0.8s ease;
+  pointer-events: none;
+}

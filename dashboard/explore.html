@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explore - QuizApp</title>
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/explore.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="../index.html" class="navbar-logo">QuizDATA</a>
+
+    <div class="nav-btns">
+      <a href="explore.html" class="nav-btn nav-btn-explore active">Explore</a>
+      <a href="/creator/quiz-editor.html"  class="nav-btn nav-btn-create">Create</a>
+      <a href="join.html"    class="nav-btn nav-btn-join">Join</a>
+    </div>
+
+    <div class="nav-right">
+      <a href="../auth.html" class="nav-login">Log in</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="explore-main">
+
+
+    <!-- SEARCH BAR -->
+    <div class="search-wrapper">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search" />
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <section class="categories-section">
+      <h2 class="section-title">Explore</h2>
+      <div class="categories-grid">
+        <button class="cat-btn cat-blue">Category</button>
+        <button class="cat-btn cat-yellow">Category</button>
+        <button class="cat-btn cat-pink">Category</button>
+        <button class="cat-btn cat-purple">Category</button>
+      </div>
+    </section>
+
+    <!-- NEW SECTION -->
+    <section class="categories-section">
+      <h2 class="section-title">New</h2>
+      <div class="categories-grid">
+        <button class="cat-btn cat-blue" onclick="openQuizModal({ title: 'Last Time Quiz', emoji: '🕐', questionCount: 10 })">Last time</button>
+      </div>
+    </section>
+
+    <!-- POPULAR QUIZ CAROUSEL -->
+    <section class="popular-section">
+      <h2 class="section-title center">Popular Quiz</h2>
+      <div class="carousel-wrapper">
+        <button class="carousel-btn prev">&#8592;</button>
+        <div class="carousel-card">
+          <div class="quiz-card-featured">
+            <div class="quiz-card-inner">
+              <span class="quiz-label">🔥 Hot</span>
+              <h3>Featured Quiz Title</h3>
+              <p>Test your knowledge!</p>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-btn next">&#8594;</button>
+      </div>
+    </section>
+
+    <!-- WHITE CARD SECTION -->
+    <section class="recommendations-section">
+
+      <!-- Quiz you might like -->
+      <div class="rec-block">
+        <h3 class="rec-title">Quiz you might like</h3>
+        <div class="rec-grid">
+          <div class="rec-card"><span>Name</span></div>
+          <div class="rec-card"><span>Name</span></div>
+          <div class="rec-card"><span>Name</span></div>
+          <div class="rec-card"><span>Name</span></div>
+        </div>
+      </div>
+
+      <!-- Play again -->
+      <div class="rec-block">
+        <h3 class="rec-title">Play again?</h3>
+        <div class="rec-grid">
+          <div class="rec-card"><span>Name</span></div>
+          <div class="rec-card"><span>Name</span></div>
+          <div class="rec-card"><span>Name</span></div>
+          <div class="rec-card"><span>Name</span></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ===== QUIZ MODAL ===== -->
+  <div class="modal-overlay" id="quiz-modal">
+    <div class="modal-box">
+
+      <button class="modal-close" onclick="closeQuizModal()">✕</button>
+
+      <div class="modal-preview">
+        <div class="modal-preview-inner">
+          <div class="modal-quiz-emoji" id="modal-emoji">🕐</div>
+          <div class="modal-quiz-title" id="modal-title">Quiz Title</div>
+        </div>
+        <div class="modal-avatar"><span>U</span></div>
+      </div>
+
+      <p class="modal-q-count">Question amount : <span id="modal-q-num">00</span></p>
+
+      <button class="modal-host-btn" onclick="hostGame()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink:0"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Host game live
+      </button>
+
+      <p class="modal-subtitle">Go live, share the code, and watch the competition begin! Real-time questions. Real-time excitement.</p>
+
+    </div>
+  </div>
+
+  <script src="../js/explore.js"></script>
+</body>
+</html>

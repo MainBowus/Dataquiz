@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Final Results – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-final.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="final-bg"></div>
+
+  <!-- CONFETTI CANVAS -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- MAIN -->
+  <main class="final-main">
+
+    <!-- WINNER BANNER -->
+    <div class="winner-banner" id="winner-banner">
+      <div class="winner-title">WINNER!</div>
+      <div class="winner-sub" id="winner-sub">Username has won the game!</div>
+    </div>
+
+    <!-- PODIUM -->
+    <div class="podium-wrap">
+
+      <!-- 2nd place (left) -->
+      <div class="podium-slot slot-2" id="slot-2">
+        <div class="podium-avatar ava-silver">U</div>
+        <div class="podium-info" id="info-2">Username with 000 points!</div>
+        <div class="podium-block block-2">
+          <span class="podium-medal">🥈</span>
+          <span class="podium-num">2</span>
+        </div>
+      </div>
+
+      <!-- 1st place (center, tallest) -->
+      <div class="podium-slot slot-1" id="slot-1">
+        <div class="podium-avatar ava-gold">U</div>
+        <div class="podium-info" id="info-1">Username with 000 points!</div>
+        <div class="podium-block block-1">
+          <span class="podium-medal">🥇</span>
+          <span class="podium-num">1</span>
+        </div>
+      </div>
+
+      <!-- 3rd place (right) -->
+      <div class="podium-slot slot-3" id="slot-3">
+        <div class="podium-avatar ava-bronze">U</div>
+        <div class="podium-info" id="info-3">Username with 000 points!</div>
+        <div class="podium-block block-3">
+          <span class="podium-medal">🥉</span>
+          <span class="podium-num">3</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- END GAME BUTTON -->
+    <button class="end-btn" onclick="endGame()">End game</button>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="final-footer">
+    <div class="footer-left">Game Completed!</div>
+    <div class="footer-center">PIN : <span id="footer-pin">0000000</span></div>
+    <div class="footer-right">Total players <span id="footer-players">000</span></div>
+  </footer>
+
+  <script src="../js/host-final.js"></script>
+</body>
+</html>

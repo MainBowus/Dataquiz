@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Question – DataQuiz Host</title>
+  <link rel="stylesheet" href="../css/host-question.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="hq-bg"></div>
+
+  <!-- ===== TOP BADGES ===== -->
+  <div class="hq-top">
+    <div class="badge badge-type" id="badge-type">Multiple Choice</div>
+    <div class="badge badge-progress" id="badge-progress">1 of 10</div>
+  </div>
+
+  <!-- ===== GET READY SCREEN ===== -->
+  <main class="hq-main" id="screen-getready">
+    <div class="getready-content">
+      <p class="gr-label">Question Number</p>
+      <div class="gr-number" id="gr-number">1</div>
+      <p class="gr-sub" id="gr-sub">Get ready!</p>
+      <div class="gr-countdown" id="gr-countdown">3</div>
+    </div>
+  </main>
+
+  <!-- ===== QUESTION SCREEN (hidden initially) ===== -->
+  <main class="hq-main hidden" id="screen-question">
+
+    <!-- Question text -->
+    <div class="q-text-wrap">
+      <p class="q-text" id="q-text">What is the capital of France?</p>
+    </div>
+
+    <!-- Optional image -->
+    <div class="q-image-wrap" id="q-image-wrap" style="display:none">
+      <img id="q-image" src="" alt="Question image" />
+    </div>
+
+    <!-- Answer grid -->
+    <div class="answers-grid">
+      <div class="ans-card ans-cyan"  id="ans-0"><span class="ans-icon">▲</span><span class="ans-text" id="ans-text-0">Answer A</span></div>
+      <div class="ans-card ans-red"   id="ans-1"><span class="ans-icon">◆</span><span class="ans-text" id="ans-text-1">Answer B</span></div>
+      <div class="ans-card ans-purple"id="ans-2"><span class="ans-icon">●</span><span class="ans-text" id="ans-text-2">Answer C</span></div>
+      <div class="ans-card ans-yellow"id="ans-3"><span class="ans-icon">■</span><span class="ans-text" id="ans-text-3">Answer D</span></div>
+    </div>
+
+    <!-- Timer bar -->
+    <div class="timer-bar-wrap">
+      <div class="timer-bar" id="timer-bar"></div>
+    </div>
+
+  </main>
+
+  <!-- ===== BOTTOM BAR ===== -->
+  <footer class="hq-footer">
+    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
+    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
+  </footer>
+
+  <script src="../js/host-question.js"></script>
+</body>
+</html>

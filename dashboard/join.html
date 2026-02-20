@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizDATA – Join</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/join.css" />
+</head>
+<body>
+
+  <!-- BACKGROUND -->
+  <div class="bg"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="navbar-logo" href="../index.html">QuizDATA</a>
+    <div class="nav-btns">
+      <a href="explore.html"        class="nav-btn nav-btn-explore">Explore</a>
+      <a href="/creator/quiz-editor.html" class="nav-btn nav-btn-create">Create</a>
+      <a href="join.html"           class="nav-btn nav-btn-join">Join</a>
+    </div>
+    <div class="nav-right" id="nav-right">
+      <a href="../auth.html" class="nav-login">Log in</a>
+    </div>
+  </nav>
+
+  <div class="center-wrap">
+
+    <!-- STEP 1: PIN -->
+    <div class="pin-card" id="step-pin">
+      <div class="card-logo">QuizDATA</div>
+      <div class="card-sub">Game PIN</div>
+      <input
+        class="pin-input"
+        id="pin-input"
+        type="text"
+        inputmode="numeric"
+        placeholder="Enter game PIN"
+        maxlength="6"
+        oninput="this.value = this.value.replace(/\D/g, '')"
+        onkeydown="if (event.key === 'Enter') checkPin()"
+      />
+      <button class="btn-pink" onclick="checkPin()">Enter</button>
+    </div>
+
+    <!-- STEP 2: NAME -->
+    <div class="name-card" id="step-name">
+      <div class="card-logo">QuizDATA</div>
+      <div class="card-sub">Enter your nickname</div>
+      <input
+        class="name-input"
+        id="name-input"
+        type="text"
+        placeholder="Name"
+        maxlength="16"
+        onkeydown="if (event.key === 'Enter') joinGame()"
+      />
+      <button class="btn-green" onclick="joinGame()">Let's go!</button>
+      <br/>
+      <button class="btn-back" onclick="goBack()">← Change PIN</button>
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="../js/global.js"></script>
+  <script src="../js/join.js"></script>
+</body>
+</html>

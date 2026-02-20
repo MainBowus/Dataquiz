@@ -1,0 +1,191 @@
+/* ===========================
+   css/host-scoreboard.css
+   =========================== */
+
+/* Next button (reuse from reveal) */
+.next-btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 9px 22px;
+  border-radius: 50px;
+  border: none;
+  background: #00D17A;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,209,122,0.45);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  white-space: nowrap;
+}
+.next-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,209,122,0.55);
+  filter: brightness(1.08);
+}
+
+/* ===== TITLE CENTER ===== */
+.sb-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sb-title {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 900;
+  font-size: clamp(20px, 3.5vw, 28px);
+  color: #1a0040;
+  background: #FFD600;
+  padding: 6px 28px;
+  border-radius: 50px;
+  box-shadow: 0 4px 18px rgba(255,214,0,0.5);
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.sb-subtitle {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 16px;
+  border-radius: 50px;
+}
+
+/* ===== LAYOUT ===== */
+.sb-layout {
+  justify-content: flex-start;
+  padding-top: 8px;
+  gap: 10px;
+}
+
+/* ===== SCOREBOARD LIST ===== */
+.sb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 680px;
+}
+
+/* Each row */
+.sb-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,0.93);
+  border-radius: 14px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: rowFadeUp 0.4s ease forwards;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s;
+}
+.sb-row:hover { transform: translateY(-2px) scale(1.01); }
+
+.sb-row:nth-child(1) { animation-delay: 0.05s; }
+.sb-row:nth-child(2) { animation-delay: 0.12s; }
+.sb-row:nth-child(3) { animation-delay: 0.19s; }
+.sb-row:nth-child(4) { animation-delay: 0.26s; }
+.sb-row:nth-child(5) { animation-delay: 0.33s; }
+.sb-row:nth-child(6) { animation-delay: 0.40s; }
+.sb-row:nth-child(7) { animation-delay: 0.47s; }
+.sb-row:nth-child(8) { animation-delay: 0.54s; }
+
+@keyframes rowFadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Rank badge */
+.sb-rank {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 900;
+  font-size: 16px;
+  color: #fff;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #bbb;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sb-rank.rank-1 { background: #FFD600; color: #5a3e00; font-size: 18px; }
+.sb-rank.rank-2 { background: #C0C0C0; color: #333; }
+.sb-rank.rank-3 { background: #CD7F32; color: #fff; }
+
+/* Avatar */
+.sb-ava {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C4DFF, #FF2D78);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* Name */
+.sb-name {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: clamp(14px, 2vw, 17px);
+  color: #1a0040;
+  flex: 1;
+}
+
+/* Score bar */
+.sb-bar-wrap {
+  flex: 2;
+  height: 10px;
+  background: #e8e8e8;
+  border-radius: 50px;
+  overflow: hidden;
+}
+.sb-bar {
+  height: 100%;
+  border-radius: 50px;
+  background: linear-gradient(90deg, #00D4E8, #7C4DFF);
+  width: 0;
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rank-1 ~ .sb-bar-wrap .sb-bar,
+.sb-row:first-child .sb-bar { background: linear-gradient(90deg, #FFD600, #FF8C00); }
+
+/* Score number */
+.sb-score {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 900;
+  font-size: 18px;
+  color: #1a0040;
+  min-width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Delta badge (+points) */
+.sb-delta {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 50px;
+  background: #00D17A;
+  color: #fff;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  animation: deltaIn 0.4s ease 0.6s forwards;
+}
+@keyframes deltaIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 560px) {
+  .sb-bar-wrap { display: none; }
+  .hq-top { flex-wrap: wrap; justify-content: center; gap: 8px; }
+}

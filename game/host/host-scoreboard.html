@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scoreboard – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-ingame.css" />
+  <link rel="stylesheet" href="../css/host-scoreboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="hq-bg"></div>
+
+  <!-- TOP -->
+  <div class="hq-top">
+    <div class="badge badge-type" id="badge-type">Multiple Choice</div>
+
+    <div class="sb-title-wrap">
+      <div class="sb-title">Scoreboard</div>
+      <div class="sb-subtitle" id="badge-progress">1 of 10</div>
+    </div>
+
+    <div class="top-right-group">
+      <button class="next-btn" onclick="goNext()">Next ▶</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="hq-main sb-layout">
+    <div class="sb-list" id="sb-list">
+      <!-- filled by JS -->
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="hq-footer">
+    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
+    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
+  </footer>
+
+  <script src="../js/host-ingame.js"></script>
+  <script src="../js/host-scoreboard.js"></script>
+</body>
+</html>

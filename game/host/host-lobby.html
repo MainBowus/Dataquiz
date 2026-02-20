@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Host Lobby – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-lobby.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="lobby-bg"></div>
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="lobby-topbar">
+    <div class="topbar-left">
+      <a href="../index.html" class="lobby-logo">QuizDATA</a>
+    </div>
+
+    <div class="topbar-center">
+      <div class="pin-block">
+        <div class="pin-label">Game PIN</div>
+        <div class="pin-number" id="game-pin">0000000</div>
+      </div>
+      <div class="qr-block">
+        <canvas id="qr-canvas" width="72" height="72"></canvas>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="question-badge" id="q-badge">1 of 10</div>
+    </div>
+  </header>
+
+  <!-- ===== PLAYER GRID ===== -->
+  <main class="lobby-main">
+    <div class="players-grid" id="players-grid">
+      <!-- filled by JS -->
+    </div>
+  </main>
+
+  <!-- ===== BOTTOM BAR ===== -->
+  <footer class="lobby-footer">
+    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
+    <div class="footer-center">
+      <button class="start-btn" id="start-btn" onclick="startGame()">
+        ▶ Start Game
+      </button>
+    </div>
+    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
+  </footer>
+
+  <script src="../js/host-lobby.js"></script>
+</body>
+</html>

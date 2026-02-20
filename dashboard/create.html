@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizBlitz – My Quizzes</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a class="navbar-logo" href="../index.html">QuizDATA</a>
+    <div class="navbar-actions">
+      <a href="join.html" class="btn btn-outline btn-sm">Join Game</a>
+      <a href="explore.html" class="btn btn-outline btn-sm">Explore</a>
+      <div class="avatar" id="user-avatar" title="Log out">?</div>
+    </div>
+  </nav>
+
+  <main style="position:relative;z-index:1;padding-bottom:60px">
+    <div class="container">
+      <div class="create-header">
+        <div>
+          <h1 style="font-size:clamp(24px,4vw,36px);font-weight:800">My Quizzes</h1>
+          <p style="color:var(--text-dim);margin-top:4px" id="quiz-count">Loading...</p>
+        </div>
+        <a href="explore-create.html" class="btn btn-primary">+ Create Quiz</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="number" id="stat-quizzes">0</div><div class="label">Quizzes</div></div>
+        <div class="stat-card"><div class="number" id="stat-questions">0</div><div class="label">Questions</div></div>
+        <div class="stat-card"><div class="number" id="stat-plays">0</div><div class="label">Total Plays</div></div>
+      </div>
+
+      <!-- Quiz grid -->
+      <div class="quiz-grid" id="quiz-grid"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="empty-state-icon">📝</div>
+        <h3>No quizzes yet</h3>
+        <p style="margin-bottom:24px">Create your first quiz to get started!</p>
+        <a href="explore-create.html" class="btn btn-primary">+ Create Quiz</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Delete confirm modal -->
+  <div class="modal-overlay modal-hidden" id="delete-modal">
+    <div class="modal">
+      <h3 style="font-size:22px;margin-bottom:12px">Delete Quiz?</h3>
+      <p style="color:var(--text-dim);margin-bottom:24px">This action cannot be undone. The quiz and all its questions will be permanently deleted.</p>
+      <div style="display:flex;gap:12px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/global.js"></script>
+  <script src="../js/dashboard.js"></script>
+  <script>
+    requireAuth();
+    loadMyQuizzes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Host Answering – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-ingame.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="hq-bg"></div>
+
+  <!-- TOP -->
+  <div class="hq-top">
+    <div class="badge badge-type" id="badge-type">Multiple Choice</div>
+    <div class="top-right-group">
+      <button class="skip-btn" onclick="skipQuestion()" title="Skip question">Skip ⏭</button>
+      <div class="badge badge-progress" id="badge-progress">1 of 10</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="hq-main answering-layout">
+
+    <!-- Question bar top -->
+    <div class="ans-question-bar" id="q-text-bar">Question</div>
+
+    <!-- Image area -->
+    <div class="ans-image-area" id="ans-image-area">
+      <!-- image or blank -->
+    </div>
+
+    <!-- Timer + avatar row -->
+    <div class="timer-avatar-row">
+      <div class="timer-circle" id="timer-circle">20</div>
+      <div class="player-avatar" id="player-avatar">
+      </div>
+    </div>
+
+    <!-- Answer choices grid -->
+    <div class="ans-choices-grid">
+      <div class="ans-choice ans-cyan"   id="ans-0" onclick="selectAnswer(0)">
+        <span class="choice-icon">▲</span>
+        <span class="choice-text" id="ans-text-0">Choice 1</span>
+      </div>
+      <div class="ans-choice ans-red"    id="ans-1" onclick="selectAnswer(1)">
+        <span class="choice-icon">◆</span>
+        <span class="choice-text" id="ans-text-1">Choice 4</span>
+      </div>
+      <div class="ans-choice ans-purple" id="ans-2" onclick="selectAnswer(2)">
+        <span class="choice-icon">●</span>
+        <span class="choice-text" id="ans-text-2">Choice 3</span>
+      </div>
+      <div class="ans-choice ans-yellow" id="ans-3" onclick="selectAnswer(3)">
+        <span class="choice-icon">■</span>
+        <span class="choice-text" id="ans-text-3">Choice 5</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="hq-footer">
+    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
+    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
+  </footer>
+
+  <script src="../js/host-ingame.js"></script>
+  <script>
+    initAnswering();
+  </script>
+</body>
+</html>
