@@ -56,6 +56,8 @@ function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
 function loadDynamicSections() {
   const all = getQuizzes();
+  
+  // 1. Explore Section (Random 4)
   const exploreGrid = document.querySelector('.categories-grid');
   if (exploreGrid) {
     const randomExplore = shuffle([...all]).slice(0, 4);
@@ -70,6 +72,7 @@ function loadDynamicSections() {
     });
   }
 
+  // 2. Quiz You Might Like (Random 4)
   const recBlocks = document.querySelectorAll('.rec-block');
   const mightLikeGrid = recBlocks[0]?.querySelector('.rec-grid');
   if (mightLikeGrid) {
@@ -85,30 +88,36 @@ function loadDynamicSections() {
     });
   }
 
-  const moreGrid = recBlocks[1]?.querySelector('.rec-grid');
-  if (moreGrid) {
-    const userQuizzes = JSON.parse(localStorage.getItem('my_quizzes') || '[]');
-    if (userQuizzes.length > 0) {
-      recBlocks[1].querySelector('.rec-title').textContent = "My Created Quizzes";
-      moreGrid.innerHTML = '';
-      userQuizzes.slice(0, 4).forEach(q => {
+  // 3. Play Again (Previously Played Quizzes)
+  const playAgainBlock = recBlocks[1];
+  if (playAgainBlock) {
+    const titleEl = playAgainBlock.querySelector('.rec-title');
+    if (titleEl) titleEl.textContent = "Play Again"; // Force Title
+    
+    const grid = playAgainBlock.querySelector('.rec-grid');
+    const playedQuizzes = JSON.parse(localStorage.getItem('played_quizzes') || '[]');
+    
+    if (playedQuizzes.length > 0) {
+      grid.innerHTML = '';
+      playedQuizzes.slice(0, 4).forEach(q => {
         const div = document.createElement('div');
         div.className = 'rec-card';
         if (q.image) div.style.backgroundImage = `url('${q.image}')`;
         div.innerHTML = `<span>${q.title}</span>`;
         div.onclick = () => openQuizModal(q);
-        moreGrid.appendChild(div);
+        grid.appendChild(div);
       });
     } else {
+        // Fallback: Random if nothing played yet
         const randomMore = shuffle([...all]).slice(0, 4);
-        moreGrid.innerHTML = '';
+        grid.innerHTML = '';
         randomMore.forEach(q => {
             const div = document.createElement('div');
             div.className = 'rec-card';
             div.style.backgroundImage = `url('${q.image}')`;
             div.innerHTML = `<span>${q.title}</span>`;
             div.onclick = () => openQuizModal(q);
-            moreGrid.appendChild(div);
+            grid.appendChild(div);
         });
     }
   }
@@ -116,6 +125,12 @@ function loadDynamicSections() {
 
 // ===== QUIZ MODAL =====
 function openQuizModal(quiz) {
+  // DISABLE POPUP ON MOBILE
+  if (window.innerWidth <= 600) {
+    console.log('Mobile view: skipping pop-up');
+    return;
+  }
+
   const modal = document.getElementById('quiz-modal');
   if (!modal) return;
   const titleEl = document.getElementById('modal-title');
@@ -123,7 +138,11 @@ function openQuizModal(quiz) {
   const previewEl = document.querySelector('.modal-preview');
   if (previewEl) previewEl.style.backgroundImage = `url('${quiz.image}')`;
   const qNumEl = document.getElementById('modal-q-num');
-  if (qNumEl) qNumEl.textContent = String(quiz.questions ? quiz.questions.length : 10);
+  
+  // Use length if it's an array, otherwise default to 10
+  const count = (quiz.questions && Array.isArray(quiz.questions)) ? quiz.questions.length : 10;
+  if (qNumEl) qNumEl.textContent = String(count);
+
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -176,7 +195,7 @@ function showLogoutModal() {
     modal.innerHTML = `
       <div style="background:white;border-radius:24px;padding:40px;width:320px;text-align:center;transform:scale(0.9);transition:transform 0.2s;">
         <h3 style="font-family:'Archivo Black';font-size:22px;margin-bottom:15px;color:#333;">Log out?</h3>
-        <p style="font-family:'Nunito';font-weight:600;color:#666;margin-bottom:30px;">Are you sure you want to log out?</p>
+        <p style="font-family:'Nunito';font-weight:600;color:#666;margin-bottom:30px;">Are you sure you want to log out of DataQuiz?</p>
         <div style="display:flex;gap:10px;justify-content:center;">
           <button onclick="closeLogoutModal()" style="padding:10px 20px;border-radius:50px;border:none;background:#eee;color:#333;font-family:'Archivo Black';cursor:pointer;">Cancel</button>
           <button onclick="confirmLogout()" style="padding:10px 20px;border-radius:50px;border:none;background:#ff3b5c;color:#fff;font-family:'Archivo Black';cursor:pointer;box-shadow:0 4px 12px rgba(255,59,92,0.3);">Log out</button>
@@ -196,7 +215,10 @@ function closeLogoutModal() {
   if (modal) {
     modal.style.opacity = '0';
     modal.firstElementChild.style.transform = 'scale(0.9)';
-    setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = ''; }, 200);
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 200);
   }
 }
 function confirmLogout() { localStorage.removeItem('mock_user'); window.location.href = '../index.html'; }
@@ -206,3 +228,6 @@ function toggleHostDropdown() {
   document.querySelector('.modal-host-btn').classList.toggle('active');
 }
 function hostGame(mode) { window.location.href = '../game/host/host-lobby.html?mode=' + mode; }
+
+document.getElementById('quiz-modal')?.addEventListener('click', function(e) { if (e.target === this) closeQuizModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeQuizModal(); });
