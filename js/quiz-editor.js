@@ -11,10 +11,11 @@ let currentQ = 0;
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  // Set quiz title from sessionStorage (ถ้ามาจากหน้า create)
-  const savedTitle = sessionStorage.getItem('new_quiz_title');
+  // Set quiz title from sessionStorage
+  const savedTitle = sessionStorage.getItem('setup_quiz_name');
   if (savedTitle) {
-    document.getElementById('quiz-title-input').value = savedTitle;
+    const titleInput = document.getElementById('quiz-title-input');
+    if (titleInput) titleInput.value = savedTitle;
   }
 
   renderTabs();
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== TABS =====
 function renderTabs() {
   const container = document.getElementById('question-tabs');
+  if (!container) return;
   container.innerHTML = '';
 
   questions.forEach((_, i) => {
@@ -62,64 +64,75 @@ function addQuestion() {
 // ===== LOAD / SAVE QUESTION =====
 function loadQuestion(index) {
   const q = questions[index];
+  if (!q) return;
 
   // Question text
-  document.getElementById('question-text').value = q.text;
+  const qInput = document.getElementById('question-text');
+  if (qInput) qInput.value = q.text || '';
 
   // Answer inputs
   const inputs = document.querySelectorAll('.answer-input');
-  const correctBtns = document.querySelectorAll('.answer-correct-btn');
   inputs.forEach((inp, i) => {
-    inp.value = q.answers[i] || '';
+    inp.value = (q.answers && q.answers[i]) || '';
   });
-  correctBtns.forEach((btn, i) => {
-    btn.classList.toggle('correct', q.correct === i);
+
+  // Answer Options UI State
+  const options = document.querySelectorAll('.answer-option');
+  options.forEach((opt, i) => {
+    opt.classList.toggle('correct', q.correct === i);
   });
 
   // Image preview
   const previewArea = document.getElementById('media-preview');
+  if (!previewArea) return;
+
   if (q.image) {
-    previewArea.innerHTML = `<img src="${q.image}" alt="Question image" />`;
+    previewArea.innerHTML = `<img src="${q.image}" alt="Question image" style="width:100%;height:100%;object-fit:cover;border-radius:14px;" />`;
   } else {
     previewArea.innerHTML = `
       <div class="upload-icon">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/>
-          <line x1="12" y1="3" x2="12" y2="15"/>
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
         </svg>
       </div>
-      <span class="upload-hint">Click to upload image</span>
     `;
   }
 }
 
 function saveCurrentQuestion() {
   const q = questions[currentQ];
-  q.text = document.getElementById('question-text').value.trim();
+  if (!q) return;
+
+  const qInput = document.getElementById('question-text');
+  if (qInput) q.text = qInput.value.trim();
+
   const inputs = document.querySelectorAll('.answer-input');
-  inputs.forEach((inp, i) => { q.answers[i] = inp.value.trim(); });
+  if (!q.answers) q.answers = ['', '', '', ''];
+  inputs.forEach((inp, i) => { 
+    q.answers[i] = inp.value.trim(); 
+  });
 }
-
 // ===== CORRECT ANSWER =====
-function toggleCorrect(btn) {
-  const correctBtns = document.querySelectorAll('.answer-correct-btn');
-  const index = Array.from(correctBtns).indexOf(btn);
+function toggleCorrect(el) {
+  const options = document.querySelectorAll('.answer-option');
+  const index = Array.from(options).indexOf(el);
 
-  // Toggle off if already selected
   if (questions[currentQ].correct === index) {
     questions[currentQ].correct = null;
-    btn.classList.remove('correct');
+    el.classList.remove('correct');
   } else {
     questions[currentQ].correct = index;
-    correctBtns.forEach(b => b.classList.remove('correct'));
-    btn.classList.add('correct');
+    options.forEach(opt => opt.classList.remove('correct'));
+    el.classList.add('correct');
   }
 }
 
 // ===== IMAGE UPLOAD =====
 function triggerUpload() {
-  document.getElementById('media-file-input').click();
+  const fileInput = document.getElementById('media-file-input');
+  if (fileInput) fileInput.click();
 }
 
 function handleImageUpload(event) {
@@ -134,61 +147,83 @@ function handleImageUpload(event) {
   reader.onload = (e) => {
     questions[currentQ].image = e.target.result;
     const previewArea = document.getElementById('media-preview');
-    previewArea.innerHTML = `<img src="${e.target.result}" alt="Question image" style="width:100%;height:100%;object-fit:cover;border-radius:14px;" />`;
+    if (previewArea) {
+      previewArea.innerHTML = `<img src="${e.target.result}" alt="Question image" style="width:100%;height:100%;object-fit:cover;border-radius:14px;" />`;
+    }
   };
   reader.readAsDataURL(file);
 }
 
 // ===== SAVE =====
 function saveQuiz() {
-  saveCurrentQuestion();
+  try {
+    saveCurrentQuestion();
 
-  const title = document.getElementById('quiz-title-input').value.trim();
-  if (!title) {
-    showToast('Please enter a quiz title', 'error');
-    document.getElementById('quiz-title-input').focus();
-    return;
+    const titleInput = document.getElementById('quiz-title-input');
+    const title = titleInput ? titleInput.value.trim() : '';
+    
+    if (!title) {
+      showToast('Please enter a quiz title', 'error');
+      return;
+    }
+
+    // Validation: Check if at least ONE question is valid
+    const hasValidQ = questions.some(q => q.text.length > 0 && q.correct !== null);
+    if (!hasValidQ) {
+      showToast('Add at least one question with text and a correct answer', 'error');
+      return;
+    }
+
+    const quizData = {
+      id: 'quiz_' + Date.now(),
+      title: title,
+      image: sessionStorage.getItem('setup_quiz_image') || null,
+      type: sessionStorage.getItem('setup_quiz_type') || 'multiple',
+      questions: questions,
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to localStorage
+    const existing = JSON.parse(localStorage.getItem('my_quizzes') || '[]');
+    existing.push(quizData);
+    localStorage.setItem('my_quizzes', JSON.stringify(existing));
+    
+    // Cleanup
+    sessionStorage.removeItem('setup_quiz_name');
+    sessionStorage.removeItem('setup_quiz_image');
+    sessionStorage.removeItem('setup_quiz_type');
+
+    showToast('Quiz saved successfully!', 'success');
+
+    // Redirect to Explore
+    setTimeout(() => {
+      window.location.href = 'explore.html';
+    }, 1200);
+  } catch (err) {
+    console.error('Save error:', err);
+    alert('An error occurred while saving. Check console.');
   }
-
-  // Validate at least 1 question has text + correct answer
-  const hasValidQ = questions.some(q => q.text && q.correct !== null);
-  if (!hasValidQ) {
-    showToast('Add at least one question with a correct answer', 'error');
-    return;
-  }
-
-  const quizData = {
-    id: 'quiz_' + Date.now(),
-    title,
-    questions,
-    createdAt: new Date().toISOString()
-  };
-
-  // Save to localStorage
-  const existing = JSON.parse(localStorage.getItem('my_quizzes') || '[]');
-  existing.push(quizData);
-  localStorage.setItem('my_quizzes', JSON.stringify(existing));
-  sessionStorage.removeItem('new_quiz_title');
-  sessionStorage.removeItem('new_quiz_emoji');
-
-  showToast('Quiz saved!', 'success');
-
-  // Navigate after short delay
-  setTimeout(() => {
-    window.location.href = '../dashboard/explore.html';
-  }, 1200);
 }
 
-// ===== EXIT =====
+// ===== EXIT / BACK =====
 function confirmExit() {
   if (confirm('Are you sure you want to exit? Unsaved changes will be lost.')) {
     window.location.href = '../index.html';
   }
 }
 
+function goBack() {
+  window.location.href = 'create-quiz.html';
+}
+
 // ===== TOAST =====
 function showToast(msg, type = '') {
+  console.log('Toast:', msg, type);
   const toast = document.getElementById('toast');
+  if (!toast) {
+    alert(msg); // Fallback if toast element missing
+    return;
+  }
   toast.textContent = msg;
   toast.className = 'toast show ' + type;
   clearTimeout(window._toastTimer);
