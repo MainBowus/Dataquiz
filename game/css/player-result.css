@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+body { font-family: 'Archivo Black', sans-serif; color: #fff; margin: 0; }
+.player-main { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+.correct-bg { background: #00e676; }
+.wrong-bg { background: #ff3b5c; }
+h1 { font-size: 48px; margin-bottom: 10px; }
+p { font-size: 24px; opacity: 0.9; }

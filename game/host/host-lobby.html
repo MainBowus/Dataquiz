@@ -5,50 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Host Lobby – DataQuiz</title>
   <link rel="stylesheet" href="../css/host-lobby.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
-  <!-- Background -->
-  <div class="lobby-bg"></div>
-
-  <!-- ===== TOP BAR ===== -->
-  <header class="lobby-topbar">
-    <div class="topbar-left">
-      <a href="../index.html" class="lobby-logo">QuizDATA</a>
-    </div>
-
-    <div class="topbar-center">
-      <div class="pin-block">
+  <!-- ===== TOP HEADER BLOCK ===== -->
+  <div class="lobby-header-container">
+    <div class="header-card">
+      <div class="header-logo-section">
+        <img src="../../assets/images/logo.png" alt="Logo" />
+      </div>
+      <div class="header-pin-section">
         <div class="pin-label">Game PIN</div>
         <div class="pin-number" id="game-pin">0000000</div>
       </div>
-      <div class="qr-block">
-        <canvas id="qr-canvas" width="72" height="72"></canvas>
+      <div class="header-qr-section">
+        <div id="qrcode"></div>
       </div>
     </div>
+  </div>
 
-    <div class="topbar-right">
-      <div class="question-badge" id="q-badge">1 of 10</div>
-    </div>
-  </header>
+  <!-- ===== QUIZ INFO ===== -->
+  <div class="quiz-info-section">
+    <h1 class="quiz-title" id="display-quiz-title">QUIZ TITLE</h1>
+    <div class="title-underline"></div>
+  </div>
 
-  <!-- ===== PLAYER GRID ===== -->
-  <main class="lobby-main">
-    <div class="players-grid" id="players-grid">
-      <!-- filled by JS -->
+  <!-- ===== PLAYER AREA ===== -->
+  <main class="lobby-main" id="lobby-main">
+    
+    <div class="waiting-text" id="waiting-section">Waiting for players to join....</div>
+
+    <div class="players-grid" id="players-grid" style="display:none;">
+      <!-- Player cards will be injected here -->
     </div>
+
   </main>
 
-  <!-- ===== BOTTOM BAR ===== -->
+  <!-- ===== FOOTER (START BTN) ===== -->
   <footer class="lobby-footer">
-    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
-    <div class="footer-center">
       <button class="start-btn" id="start-btn" onclick="startGame()">
-        ▶ Start Game
+        START
       </button>
-    </div>
-    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
   </footer>
 
   <script src="../js/host-lobby.js"></script>

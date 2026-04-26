@@ -3,45 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Host Question – DataQuiz</title>
-  <link rel="stylesheet" href="../css/host-ingame.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <title>Question Display – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-question-display.css" />
 </head>
 <body>
 
   <div class="hq-bg"></div>
 
-  <!-- TOP BADGES -->
-  <div class="hq-top">
-    <div class="badge badge-type" id="badge-type">Multiple Choice</div>
-    <div class="top-right-group">
-      <button class="skip-btn" onclick="skipQuestion()" title="Skip question">Skip ⏭</button>
-      <div class="badge badge-progress" id="badge-progress">1 of 10</div>
+  <!-- TOP HUD -->
+  <div class="hq-hud">
+    <div class="hud-left">
+      <div class="hud-box" id="hud-type">Multiple Choice</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-box" id="hud-timer">TIME 30</div>
+      <div class="hud-box" id="hud-progress">1 / 10</div>
     </div>
   </div>
 
-  <!-- CENTER: Question bubble + image area -->
+  <!-- CENTER: Question text + image -->
   <main class="hq-main">
-
-    <div class="question-bubble-wrap">
-      <div class="question-bubble" id="q-bubble">Question!</div>
+    <div class="question-container">
+      <div class="question-text-box" id="q-text">What is this character called?</div>
     </div>
 
-    <div class="question-text-bar" id="q-text-bar">QUESTION PLACEHOLDER</div>
-
+    <div class="question-image-area" id="q-image-wrap">
+      <img id="q-image" src="" alt="Question image" />
+    </div>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="hq-footer">
-    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
-    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
-  </footer>
-
-  <script src="../js/host-ingame.js"></script>
-  <script>
-    // This page shows the question before answers appear
-    // After timer / host action → navigate to answering page
-    initQuestionDisplay();
-  </script>
+  <script src="../js/host-question-display.js"></script>
 </body>
 </html>

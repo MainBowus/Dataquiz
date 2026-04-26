@@ -1,125 +1,92 @@
 /* ===========================
    js/host-lobby.js
-   Host Lobby Logic
+   Host Lobby Logic - Restored V1
    =========================== */
 
-// ===== CONFIG =====
 const GAME_PIN = generatePin();
-let totalQuestions = 10;
-let currentQuestion = 1;
 
-// Mock players joining (demo — แทนด้วย websocket จริงๆ ได้)
-const mockPlayers = [
-  'Username','Username','Username','Username',
-  'Username','Username','Username','Username',
-  'Username','Username','Username','Username',
-  'Username','Username','Username','Username',
-];
-
-// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('game-pin').textContent   = GAME_PIN;
-  document.getElementById('footer-pin').textContent = GAME_PIN;
-  updateQuestionInfo();
-  drawQR();
-  simulatePlayers();
+  localStorage.setItem('lobby_players', '[]');
+  localStorage.setItem('current_game_pin', GAME_PIN);
+
+  document.getElementById('game-pin').textContent = GAME_PIN;
+  
+  const savedTitle = sessionStorage.getItem('setup_quiz_name') || 'NAME QUIZ';
+  document.getElementById('display-quiz-title').textContent = savedTitle.toUpperCase();
+
+  generateFunctionalQR();
+  listenForPlayers();
+  simulatePlayers(); // Keep simulation for now as requested earlier
 });
 
-// ===== PIN GENERATOR =====
 function generatePin() {
-  return String(Math.floor(1000000 + Math.random() * 9000000));
+  return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-// ===== QUESTION INFO =====
-function updateQuestionInfo() {
-  document.getElementById('q-badge').textContent       = `${currentQuestion} of ${totalQuestions}`;
-  document.getElementById('footer-q-info').textContent = `Question ${currentQuestion} / ${totalQuestions}`;
-}
-
-// ===== DRAW SIMPLE QR PLACEHOLDER =====
-function drawQR() {
-  const canvas = document.getElementById('qr-canvas');
-  const ctx = canvas.getContext('2d');
-  const size = 72;
-  const cells = 9;
-  const cell = size / cells;
-
-  const pattern = [
-    [1,1,1,1,1,1,1,0,1],
-    [1,0,0,0,0,0,1,0,0],
-    [1,0,1,1,1,0,1,0,1],
-    [1,0,1,1,1,0,1,1,0],
-    [1,0,1,1,1,0,1,0,1],
-    [1,0,0,0,0,0,1,0,0],
-    [1,1,1,1,1,1,1,0,1],
-    [0,0,0,1,0,0,0,1,0],
-    [1,0,1,0,1,1,1,0,1],
-  ];
-
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, size, size);
-  pattern.forEach((row, r) => {
-    row.forEach((val, c) => {
-      if (val) {
-        ctx.fillStyle = '#1a0040';
-        ctx.fillRect(c * cell, r * cell, cell - 0.5, cell - 0.5);
-      }
-    });
+function generateFunctionalQR() {
+  const qrContainer = document.getElementById('qrcode');
+  if (!qrContainer) return;
+  qrContainer.innerHTML = '';
+  
+  const baseUrl = window.location.origin;
+  const joinUrl = `${baseUrl}/dashboard/join.html?pin=${GAME_PIN}`;
+  
+  new QRCode(qrContainer, {
+    text: joinUrl,
+    width: 100,
+    height: 100,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
   });
 }
 
-// ===== SIMULATE PLAYERS JOINING =====
 function simulatePlayers() {
-  const grid = document.getElementById('players-grid');
-  grid.innerHTML = '<div class="waiting-text">Waiting for players to join...</div>';
-
+  const mockNames = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Casey'];
   let i = 0;
   function addNext() {
-    if (i === 0) grid.innerHTML = '';
-    if (i < mockPlayers.length) {
-      const pill = document.createElement('div');
-      pill.className = 'player-pill';
-      pill.textContent = mockPlayers[i];
-      pill.style.animationDelay = `${i * 0.05}s`;
-      grid.appendChild(pill);
+    if (i < mockNames.length) {
+      const players = JSON.parse(localStorage.getItem('lobby_players') || '[]');
+      if (!players.includes(mockNames[i])) {
+        players.push(mockNames[i]);
+        localStorage.setItem('lobby_players', JSON.stringify(players));
+      }
       i++;
-      setTimeout(addNext, 400);
+      setTimeout(addNext, 1500);
     }
   }
-  setTimeout(addNext, 1000);
+  setTimeout(addNext, 2000);
 }
 
-// ===== ADD PLAYER (ใช้กับ websocket จริง) =====
-function addPlayer(username) {
+function listenForPlayers() {
   const grid = document.getElementById('players-grid');
-  const waiting = grid.querySelector('.waiting-text');
-  if (waiting) waiting.remove();
+  const waiting = document.getElementById('waiting-section');
 
-  const pill = document.createElement('div');
-  pill.className = 'player-pill';
-  pill.textContent = username;
-  grid.appendChild(pill);
+  function updatePlayerList() {
+    const players = JSON.parse(localStorage.getItem('lobby_players') || '[]');
+    if (players.length > 0) {
+      waiting.style.display = 'none';
+      grid.style.display = 'grid';
+      grid.innerHTML = '';
+      players.forEach(name => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.textContent = name;
+        grid.appendChild(card);
+      });
+    } else {
+      waiting.style.display = 'block';
+      grid.style.display = 'none';
+    }
+  }
+  setInterval(updatePlayerList, 1000);
 }
 
-// ===== START GAME =====
 function startGame() {
-  const btn  = document.getElementById('start-btn');
-  const pills = document.querySelectorAll('.player-pill');
-
-  if (pills.length === 0) {
-    btn.textContent = '⚠ No players yet!';
-    setTimeout(() => { btn.textContent = '▶ Start Game'; }, 2000);
-    return;
-  }
-
+  const btn = document.getElementById('start-btn');
   btn.disabled = true;
   btn.textContent = 'Starting...';
-
-  // บันทึก PIN และ reset คำถาม
   sessionStorage.setItem('game_pin', GAME_PIN);
   sessionStorage.setItem('current_question', '0');
-
-  setTimeout(() => {
-    window.location.href = 'host-question-display.html';
-  }, 800);
+  setTimeout(() => { window.location.href = 'host-question.html'; }, 800);
 }

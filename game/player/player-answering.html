@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Answering – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-question-display.css" />
+  <link rel="stylesheet" href="../css/player-lobby.css" />
+  <link rel="stylesheet" href="../css/player-answering.css?v=2" />
+  <style>
+    /* HUD Overrides for Player */
+    .hud-box { background: #1c2c43; border: 1.5px solid #000; font-size: 18px; padding: 8px 15px; }
+    .user-badge { font-size: 16px; padding: 8px 20px; }
+    .question-text-box { font-size: 28px; padding: 10px 30px; border: 2px solid #000; }
+    .question-image-area { height: 200px; max-width: 350px; }
+    @media (max-width: 600px) {
+      .hud-box { font-size: 12px; padding: 5px 10px; }
+      .user-badge { font-size: 12px; padding: 5px 12px; }
+      .question-text-box { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="player-bg" style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(135deg, #05162a 0%, #0d2137 50%, #162e4a 100%);"></div>
+
+  <!-- HUD -->
+  <div class="hq-hud">
+    <div class="hud-left">
+      <div class="user-badge" id="display-name">Username</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-box" id="hud-timer">TIME 30</div>
+      <div class="hud-box" id="hud-progress">1 / 10</div>
+      <div class="hud-box" id="hud-stats">#1 Score 0</div>
+    </div>
+  </div>
+
+  <main class="player-main">
+    <div class="question-container">
+      <div class="question-text-box" id="q-text">What is this character called?</div>
+    </div>
+
+    <div class="question-image-area" id="q-image-wrap">
+      <img id="q-image" src="" alt="Question image" />
+    </div>
+
+    <div class="answer-grid">
+      <button class="ans-btn" id="ans-0" onclick="submitAnswer(0)">Answer 1</button>
+      <button class="ans-btn" id="ans-1" onclick="submitAnswer(1)">Answer 2</button>
+      <button class="ans-btn" id="ans-2" onclick="submitAnswer(2)">Answer 3</button>
+      <button class="ans-btn" id="ans-3" onclick="submitAnswer(3)">Answer 4</button>
+    </div>
+  </main>
+
+  <script src="../js/player-answering.js"></script>
+</body>
+</html>

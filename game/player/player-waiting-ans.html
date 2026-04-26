@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Waiting... – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-question-display.css" />
+  <link rel="stylesheet" href="../css/player-lobby.css" />
+  <link rel="stylesheet" href="../css/player-answering.css" />
+  <link rel="stylesheet" href="../css/player-waiting-ans.css?v=2" />
+  <style>
+    /* Ensure HUD and layout match exactly but look "backgrounded" */
+    .hud-box { background: #1c2c43; border: 1.5px solid #000; font-size: 18px; padding: 8px 15px; opacity: 0.6; }
+    .user-badge { font-size: 16px; padding: 8px 20px; opacity: 0.6; }
+    .question-text-box { font-size: 28px; padding: 10px 30px; border: 2px solid #000; opacity: 0.6; }
+    .question-image-area { height: 200px; max-width: 350px; opacity: 0.6; }
+    .ans-btn { opacity: 0.4; pointer-events: none; }
+    @media (max-width: 600px) {
+      .hud-box { font-size: 12px; padding: 5px 10px; }
+      .user-badge { font-size: 12px; padding: 5px 12px; }
+      .question-text-box { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND (Blurred via CSS) -->
+  <div class="blurred-content">
+      <div class="hq-hud">
+        <div class="hud-left">
+          <div class="user-badge" id="display-name">Username</div>
+        </div>
+        <div class="hud-right">
+          <div class="hud-box">TIME 0</div>
+          <div class="hud-box" id="hud-progress">1 / 10</div>
+          <div class="hud-box" id="hud-stats">#1 Score 0</div>
+        </div>
+      </div>
+
+      <main class="player-main">
+        <div class="question-container">
+          <div class="question-text-box" id="q-text">What is this character called?</div>
+        </div>
+        <div class="question-image-area" id="q-image-wrap">
+          <img id="q-image" src="" alt="Question image" />
+        </div>
+        <div class="answer-grid">
+          <button class="ans-btn">Answer 1</button>
+          <button class="ans-btn">Answer 2</button>
+          <button class="ans-btn">Answer 3</button>
+          <button class="ans-btn">Answer 4</button>
+        </div>
+      </main>
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="waiting-overlay">
+      <div class="overlay-content">
+        <h1>Waiting for the answers</h1>
+        <div class="spinner">
+          <div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div>
+          <div class="bar5"></div><div class="bar6"></div><div class="bar7"></div><div class="bar8"></div>
+          <div class="bar9"></div><div class="bar10"></div><div class="bar11"></div><div class="bar12"></div>
+        </div>
+      </div>
+  </div>
+
+  <script src="../js/player-waiting-ans.js"></script>
+</body>
+</html>

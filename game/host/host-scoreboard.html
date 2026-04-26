@@ -4,42 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Scoreboard – DataQuiz</title>
-  <link rel="stylesheet" href="../css/host-ingame.css" />
-  <link rel="stylesheet" href="../css/host-scoreboard.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/host-scoreboard.css?v=1" />
 </head>
 <body>
 
   <div class="hq-bg"></div>
 
-  <!-- TOP -->
-  <div class="hq-top">
-    <div class="badge badge-type" id="badge-type">Multiple Choice</div>
-
-    <div class="sb-title-wrap">
-      <div class="sb-title">Scoreboard</div>
-      <div class="sb-subtitle" id="badge-progress">1 of 10</div>
+  <!-- TOP HUD -->
+  <div class="hq-hud">
+    <div class="hud-left">
+      <div class="hud-box" id="hud-type">Multiple Choice</div>
     </div>
-
-    <div class="top-right-group">
-      <button class="next-btn" onclick="goNext()">Next ▶</button>
+    <div class="hud-right">
+      <div class="hud-box" id="hud-progress">1 / 10</div>
+      <button class="hud-box next-btn" onclick="goNext()">NEXT</button>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <main class="hq-main sb-layout">
+  <!-- TITLE -->
+  <div class="scoreboard-header">
+    <h1 class="sb-title">SCOREBOARD</h1>
+  </div>
+
+  <!-- MAIN: Ranking List -->
+  <main class="sb-main">
     <div class="sb-list" id="sb-list">
-      <!-- filled by JS -->
+      <!-- Logic in host-scoreboard.js will fill this -->
     </div>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="hq-footer">
-    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
-    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
-  </footer>
-
-  <script src="../js/host-ingame.js"></script>
   <script src="../js/host-scoreboard.js"></script>
 </body>
 </html>

@@ -106,8 +106,28 @@ function joinGame() {
   }
 
   const pin = sessionStorage.getItem('join_pin') || '';
+  const hostPin = localStorage.getItem('current_game_pin');
+
+  // In a real app, you would block users if the PIN doesn't match.
+  // For this prototype, we'll allow navigation so you can test the player screens.
+  if (pin !== hostPin && hostPin) {
+    console.log('PIN mismatch, but allowing for demo purposes.');
+  }
+
+  // Add name to shared lobby list
+  const players = JSON.parse(localStorage.getItem('lobby_players') || '[]');
+  if (!players.includes(name)) {
+    players.push(name);
+    localStorage.setItem('lobby_players', JSON.stringify(players));
+  }
+
   sessionStorage.setItem('player_state', JSON.stringify({ name, pin }));
-  window.location.href = '../game/player/player.html';
+  showToast('Joined! Redirecting to lobby...', 'success');
+  
+  // Redirect to player lobby
+  setTimeout(() => {
+    window.location.href = '../game/player/player-lobby.html';
+  }, 1000);
 }
 
 /* ---- Back to PIN ---- */

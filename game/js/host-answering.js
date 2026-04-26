@@ -1,7 +1,10 @@
 /* ===========================
-   js/host-reveal.js
-   Host Reveal Phase Logic
+   js/host-answering.js
+   Host Answering Phase Logic
    =========================== */
+
+// ===== CONFIG =====
+const TOTAL_TIME = 30;
 
 const mockQuestions = [
   {
@@ -15,12 +18,16 @@ const mockQuestions = [
 
 let currentQ = parseInt(sessionStorage.getItem('current_question') || '0');
 let totalQ    = mockQuestions.length;
+let timeLeft  = TOTAL_TIME;
+let timerInterval = null;
 
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  loadRevealData();
+  loadQuestionData();
+  startCountdown();
 });
 
-function loadRevealData() {
+function loadQuestionData() {
   const q = mockQuestions[currentQ];
   if (!q) return;
 
@@ -43,16 +50,24 @@ function loadRevealData() {
   // Answers
   q.answers.forEach((ans, i) => {
     const card = document.getElementById(`ans-${i}`);
-    if (card) {
-        card.textContent = ans;
-        // Highlight correct one
-        if (i === q.correct) {
-            card.classList.add('correct');
-        }
-    }
+    if (card) card.textContent = ans;
   });
 }
 
-function goNext() {
-  window.location.href = 'host-scoreboard.html';
+function startCountdown() {
+  const timerEl = document.getElementById('hud-timer');
+  
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    if (timerEl) timerEl.textContent = `TIME ${timeLeft}`;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      moveToReveal();
+    }
+  }, 1000);
+}
+
+function moveToReveal() {
+  window.location.href = 'host-reveal.html';
 }

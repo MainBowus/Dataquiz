@@ -3,72 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Host Answering – DataQuiz</title>
-  <link rel="stylesheet" href="../css/host-ingame.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <title>Answering – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-answering.css" />
 </head>
 <body>
 
   <div class="hq-bg"></div>
 
-  <!-- TOP -->
-  <div class="hq-top">
-    <div class="badge badge-type" id="badge-type">Multiple Choice</div>
-    <div class="top-right-group">
-      <button class="skip-btn" onclick="skipQuestion()" title="Skip question">Skip ⏭</button>
-      <div class="badge badge-progress" id="badge-progress">1 of 10</div>
+  <!-- TOP HUD (Identical to Display page) -->
+  <div class="hq-hud">
+    <div class="hud-left">
+      <div class="hud-box" id="hud-type">Multiple Choice</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-box" id="hud-timer">TIME 30</div>
+      <div class="hud-box" id="hud-progress">1 / 10</div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <main class="hq-main answering-layout">
-
-    <!-- Question bar top -->
-    <div class="ans-question-bar" id="q-text-bar">Question</div>
-
-    <!-- Image area -->
-    <div class="ans-image-area" id="ans-image-area">
-      <!-- image or blank -->
+  <!-- CENTER: Question + Image + Answers -->
+  <main class="hq-main">
+    <div class="question-container">
+      <div class="question-text-box" id="q-text">What is this character called?</div>
     </div>
 
-    <!-- Timer + avatar row -->
-    <div class="timer-avatar-row">
-      <div class="timer-circle" id="timer-circle">20</div>
-      <div class="player-avatar" id="player-avatar">
-      </div>
+    <div class="question-image-area" id="q-image-wrap">
+      <img id="q-image" src="" alt="Question image" />
     </div>
 
-    <!-- Answer choices grid -->
-    <div class="ans-choices-grid">
-      <div class="ans-choice ans-cyan"   id="ans-0" onclick="selectAnswer(0)">
-        <span class="choice-icon">▲</span>
-        <span class="choice-text" id="ans-text-0">Choice 1</span>
-      </div>
-      <div class="ans-choice ans-red"    id="ans-1" onclick="selectAnswer(1)">
-        <span class="choice-icon">◆</span>
-        <span class="choice-text" id="ans-text-1">Choice 4</span>
-      </div>
-      <div class="ans-choice ans-purple" id="ans-2" onclick="selectAnswer(2)">
-        <span class="choice-icon">●</span>
-        <span class="choice-text" id="ans-text-2">Choice 3</span>
-      </div>
-      <div class="ans-choice ans-yellow" id="ans-3" onclick="selectAnswer(3)">
-        <span class="choice-icon">■</span>
-        <span class="choice-text" id="ans-text-3">Choice 5</span>
-      </div>
+    <div class="answers-grid" id="answers-grid">
+      <!-- 4 Answer boxes -->
+      <div class="answer-card" id="ans-0">Answer 1</div>
+      <div class="answer-card" id="ans-1">Answer 2</div>
+      <div class="answer-card" id="ans-2">Answer 3</div>
+      <div class="answer-card" id="ans-3">Answer 4</div>
     </div>
-
   </main>
 
-  <!-- FOOTER -->
-  <footer class="hq-footer">
-    <div class="footer-left" id="footer-q-info">Question 1 / 10</div>
-    <div class="footer-right">PIN : <span id="footer-pin">0000000</span></div>
-  </footer>
-
-  <script src="../js/host-ingame.js"></script>
-  <script>
-    initAnswering();
-  </script>
+  <script src="../js/host-answering.js"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 /* ===========================
-   css/host-reveal.css
+   css/host-answering.css
    =========================== */
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Nunito:wght@600;700;800;900&display=swap');
 
@@ -8,7 +8,6 @@
 :root {
   --bg-dark: #05162a;
   --box-bg: #1c2c43;
-  --correct-green: #ccff00;
 }
 
 body {
@@ -26,8 +25,6 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 20px 30px;
-  position: relative;
-  z-index: 10;
 }
 
 .hud-left, .hud-right {
@@ -41,17 +38,7 @@ body {
   border: 1.5px solid #000;
   font-size: 24px;
   text-transform: capitalize;
-  font-family: 'Archivo Black', sans-serif;
-  color: #fff;
 }
-
-.next-btn {
-  cursor: pointer;
-  transition: transform 0.1s, background 0.2s;
-  outline: none;
-}
-.next-btn:hover { background: #2a3d59; }
-.next-btn:active { transform: scale(0.95); }
 
 /* ===== MAIN AREA ===== */
 .hq-main {
@@ -62,8 +49,6 @@ body {
   justify-content: flex-start;
   padding-top: 20px;
   gap: 20px;
-  position: relative;
-  z-index: 5;
 }
 
 .question-container {
@@ -116,16 +101,13 @@ body {
   background: var(--box-bg);
   padding: 20px 30px;
   border-radius: 15px;
-  border: 2px solid #000;
+  border: 2px solid #000; /* Set to exactly 2px */
   font-size: 28px;
   text-align: left;
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  color: #fff;
+  transition: transform 0.1s;
 }
 
-.answer-card.correct {
-  background: #ccff00 !important; /* Force the neon green */
-  color: #000 !important; /* High contrast black text */
-  border: none !important;
-  box-shadow: 0 0 30px rgba(204, 255, 0, 0.4);
+.answer-card:active {
+  transform: scale(0.98);
 }
