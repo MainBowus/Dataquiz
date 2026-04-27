@@ -66,7 +66,7 @@ function checkPin() {
   const input = document.getElementById('pin-input');
   const pin   = input.value.trim();
 
-  if (pin.length < 4) {
+  if (pin.length !== 6) {
     showToast('Please enter a valid PIN');
     input.classList.remove('shake');
     void input.offsetWidth;
@@ -112,13 +112,6 @@ function joinGame() {
   // For this prototype, we'll allow navigation so you can test the player screens.
   if (pin !== hostPin && hostPin) {
     console.log('PIN mismatch, but allowing for demo purposes.');
-  }
-
-  // Add name to shared lobby list
-  const players = JSON.parse(localStorage.getItem('lobby_players') || '[]');
-  if (!players.includes(name)) {
-    players.push(name);
-    localStorage.setItem('lobby_players', JSON.stringify(players));
   }
 
   sessionStorage.setItem('player_state', JSON.stringify({ name, pin }));
