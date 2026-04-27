@@ -1,71 +1,111 @@
-let time = 30
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+
+let socket = null
+let time = 20
+let timerInterval = null
+let answered = false
+const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
+const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
 
 document.addEventListener('DOMContentLoaded', () => {
-  const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
   document.getElementById('display-name').textContent = state.name
 
-  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+  socket = io(SOCKET_URL)
 
-  // ดึง quiz จาก localStorage ที่ host โหลดไว้
-  const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
-  const questions = quizData ? quizData.questions : []
-  const totalQ = questions.length
+  socket.on('connect', () => {
+    console.log('Player answering connected')
+  })
 
-  const progEl = document.getElementById('hud-progress')
-  if (progEl) progEl.textContent = `${currentQ + 1} / ${totalQ}`
+  // รับคำถามจาก server
+  socket.on('game:question', (data) => {
+    if (data.questionIndex !== currentQ) return
 
-  const statsEl = document.getElementById('hud-stats')
-  if (statsEl) statsEl.textContent = `#${state.rank || 1} Score ${state.score || 0}`
+    time = data.timeLimit || 20
+    const totalQ = sessionStorage.getItem('total_questions') || '?'
 
-  const q = questions[currentQ]
-  if (!q) return
+    const progEl = document.getElementById('hud-progress')
+    if (progEl) progEl.textContent = `${currentQ + 1} / ${totalQ}`
 
-  document.getElementById('q-text').textContent = q.questionText
+    const statsEl = document.getElementById('hud-stats')
+    if (statsEl) statsEl.textContent = `#${state.rank || 1} Score ${state.score || 0}`
 
-  const imgEl = document.getElementById('q-image')
-  const imgWrap = document.getElementById('q-image-wrap')
-  if (q.questionImage?.url) {
-    imgEl.src = q.questionImage.url
-    imgWrap.style.display = 'flex'
-  } else {
-    if (imgWrap) imgWrap.style.display = 'none'
-  }
+    document.getElementById('q-text').textContent = data.questionText
 
-  if (q.questionType === 'open-ended') {
-    document.getElementById('multiple-choice-grid').style.display = 'none'
-    document.getElementById('open-ended-area').style.display = 'flex'
-  } else {
-    document.getElementById('multiple-choice-grid').style.display = 'grid'
-    document.getElementById('open-ended-area').style.display = 'none'
-    q.options.forEach((opt, i) => {
-      const btn = document.getElementById(`ans-${i}`)
-      if (btn) btn.textContent = opt.text
-    })
-  }
-
-  const timerEl = document.getElementById('hud-timer')
-  const interval = setInterval(() => {
-    time--
-    if (timerEl) timerEl.textContent = `TIME ${time}`
-    if (time <= 0) {
-      clearInterval(interval)
-      sessionStorage.setItem('time_left_at_submit', '0')
-      window.location.href = 'player-waiting-ans.html'
+    // รูปภาพ
+    const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
+    const q = quizData?.questions[currentQ]
+    const imgWrap = document.getElementById('q-image-wrap')
+    if (q?.questionImage?.url) {
+      document.getElementById('q-image').src = q.questionImage.url
+      if (imgWrap) imgWrap.style.display = 'flex'
+    } else {
+      if (imgWrap) imgWrap.style.display = 'none'
     }
-  }, 1000)
+
+    if (data.questionType === 'open-ended') {
+      document.getElementById('multiple-choice-grid').style.display = 'none'
+      document.getElementById('open-ended-area').style.display = 'flex'
+    } else {
+      document.getElementById('multiple-choice-grid').style.display = 'grid'
+      document.getElementById('open-ended-area').style.display = 'none'
+      data.options.forEach((opt, i) => {
+        const btn = document.getElementById(`ans-${i}`)
+        if (btn) btn.textContent = opt.text
+      })
+    }
+
+    startTimer()
+  })
+
+  // หมดเวลา
+  socket.on('game:time-up', () => {
+    clearInterval(timerInterval)
+    if (!answered) {
+      sessionStorage.setItem('last_answer_result', 'false')
+      sessionStorage.setItem('earned_points', '0')
+    }
+    window.location.href = 'player-result.html'
+  })
+
+  // ผลลัพธ์การตอบ
+  socket.on('game:answer-result', (data) => {
+    clearInterval(timerInterval)
+    sessionStorage.setItem('last_answer_result', data.isCorrect)
+    sessionStorage.setItem('earned_points', data.earnedPoints)
+    state.score = data.totalScore
+    state.streak = data.streak
+    sessionStorage.setItem('player_state', JSON.stringify(state))
+    window.location.href = 'player-result.html'
+  })
 })
 
+function startTimer() {
+  const timerEl = document.getElementById('hud-timer')
+  timerInterval = setInterval(() => {
+    time--
+    if (timerEl) timerEl.textContent = `TIME ${time}`
+    if (time <= 0) clearInterval(timerInterval)
+  }, 1000)
+}
+
 function submitAnswer(index) {
-  sessionStorage.setItem('last_answer_type', 'multiple')
-  sessionStorage.setItem('last_answer', index)
-  sessionStorage.setItem('time_left_at_submit', time)
-  window.location.href = 'player-waiting-ans.html'
+  if (answered) return
+  answered = true
+  const pin = JSON.parse(sessionStorage.getItem('player_state'))?.pin
+  if (socket && pin) {
+    socket.emit('game:answer', { pin, answerIndex: index })
+  }
 }
 
 function submitOpenEnded() {
-  const val = document.getElementById('open-ended-input').value
-  sessionStorage.setItem('last_answer_type', 'open')
-  sessionStorage.setItem('last_answer', val)
-  sessionStorage.setItem('time_left_at_submit', time)
-  window.location.href = 'player-waiting-ans.html'
+  if (answered) return
+  answered = true
+  const val = document.getElementById('open-ended-input').value.trim()
+  // open-ended ส่ง index 0 ไปก่อน (backend จะตรวจ acceptedAnswers เอง)
+  // เก็บค่าไว้ใช้แสดงผล
+  sessionStorage.setItem('open_answer', val)
+  const pin = JSON.parse(sessionStorage.getItem('player_state'))?.pin
+  if (socket && pin) {
+    socket.emit('game:answer', { pin, answerIndex: 0, openAnswer: val })
+  }
 }
