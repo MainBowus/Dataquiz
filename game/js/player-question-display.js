@@ -1,27 +1,37 @@
+const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
+const questions = quizData ? quizData.questions : []
+
+let currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+let totalQ = questions.length
+
 document.addEventListener('DOMContentLoaded', () => {
-  const state = JSON.parse(sessionStorage.getItem('player_state'));
-  
-  // เช็คก่อนว่า element มีอยู่ไหม
-  const nameEl = document.getElementById('display-name');
-  if (nameEl && state) nameEl.textContent = state.name;
+  loadQuestionInfo()
+  setTimeout(() => {
+    window.location.href = 'host-answering.html'
+  }, 3000)
+})
 
-  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0');
-  const qNumEl = document.getElementById('display-q-number');
-  if (qNumEl) qNumEl.textContent = `Question ${currentQ + 1}`;
+function loadQuestionInfo() {
+  const q = questions[currentQ]
+  if (!q) return
 
-  let count = 3;
-  const countEl = document.getElementById('gr-countdown');
-  if (!countEl) return;
+  const qType = q.questionType === 'multiple-choice' ? 'Multiple Choice' : 'Open-ended'
 
-  countEl.textContent = count;
+  const typeEl = document.getElementById('hud-type')
+  if (typeEl) typeEl.textContent = qType
 
-  const interval = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(interval);
-      window.location.href = 'player-question-display.html';
-    } else {
-      countEl.textContent = count;
-    }
-  }, 1000);
-});
+  const progressEl = document.getElementById('hud-progress')
+  if (progressEl) progressEl.textContent = `${currentQ + 1} / ${totalQ}`
+
+  const textEl = document.getElementById('q-text')
+  if (textEl) textEl.textContent = q.questionText
+
+  const imgEl = document.getElementById('q-image')
+  const imgWrap = document.getElementById('q-image-wrap')
+  if (q.questionImage?.url) {
+    imgEl.src = q.questionImage.url
+    imgWrap.style.display = 'flex'
+  } else {
+    if (imgWrap) imgWrap.style.display = 'none'
+  }
+}
