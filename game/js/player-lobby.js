@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('display-name').textContent = state.name;
   
   // Load Quiz Name (from host or setup)
-  const quizName = sessionStorage.getItem('setup_quiz_name') || 'NAME QUIZ';
+  const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null');
+  const quizName = quizData?.title || sessionStorage.getItem('setup_quiz_name') || 'NAME QUIZ';
   document.getElementById('display-quiz-name').textContent = quizName;
 
   // Clear previous game status if any (ensure clean start)
