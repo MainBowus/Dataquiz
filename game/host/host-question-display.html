@@ -3,35 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Question Display – DataQuiz</title>
-  <link rel="stylesheet" href="../css/host-question-display.css" />
+  <title>Get Ready – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-question.css" />
 </head>
 <body>
 
+  <!-- Background -->
   <div class="hq-bg"></div>
 
-  <!-- TOP HUD -->
-  <div class="hq-hud">
-    <div class="hud-left">
-      <div class="hud-box" id="hud-type">Multiple Choice</div>
-    </div>
-    <div class="hud-right">
-      <div class="hud-box" id="hud-timer">TIME 30</div>
-      <div class="hud-box" id="hud-progress">1 / 10</div>
-    </div>
-  </div>
-
-  <!-- CENTER: Question text + image -->
   <main class="hq-main">
-    <div class="question-container">
-      <div class="question-text-box" id="q-text">What is this character called?</div>
-    </div>
-
-    <div class="question-image-area" id="q-image-wrap">
-      <img id="q-image" src="" alt="Question image" />
+    <div class="getready-content">
+      <div class="gr-label" id="display-q-number">Question 1</div>
+      <div class="gr-countdown" id="gr-countdown">3</div>
     </div>
   </main>
 
-  <script src="../js/host-question-display.js"></script>
+  <script src="../js/host-question.js"></script>
 </body>
 </html>
