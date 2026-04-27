@@ -165,10 +165,35 @@ async function saveQuiz() {
       return;
     }
 
-    const hasValidQ = questions.some(q => q.text.length > 0 && q.correct !== null);
-    if (!hasValidQ) {
-      showToast('Add at least one question with text and a correct answer', 'error');
-      return;
+    const quizType = sessionStorage.getItem('setup_quiz_type') || 'multiple';
+
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      const qNum = i + 1;
+      if (quizType === 'multiple') {
+        if (!q.text.trim()) {
+          alert(`Question ${qNum}: Please enter the question text.`);
+          return;
+        }
+        if (q.answers.some(a => !a.trim())) {
+          alert(`Question ${qNum}: Please fill in all four answer options.`);
+          return;
+        }
+        if (q.correct === null) {
+          alert(`Question ${qNum}: Please select which answer is correct.`);
+          return;
+        }
+      } else {
+        // Open-ended
+        if (!q.text.trim()) {
+          alert(`Question ${qNum}: Please enter the question text.`);
+          return;
+        }
+        if (!q.answers[0] || !q.answers[0].trim()) {
+          alert(`Question ${qNum}: Please enter the correct answer.`);
+          return;
+        }
+      }
     }
 
     const token = localStorage.getItem('token');
@@ -180,8 +205,6 @@ async function saveQuiz() {
 
     showToast('Saving...', '');
 
-    // แปลง questions เป็น format ที่ backend ต้องการ
-    const quizType = sessionStorage.getItem('setup_quiz_type') || 'multiple';
     const formattedQuestions = questions.map(q => {
       if (quizType === 'multiple') {
         return {

@@ -51,7 +51,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       div.innerHTML = `
         <span>${q.title}</span>
-        <small style="display:block;font-size:11px;opacity:0.7;margin-top:4px;">${q.questions.length} questions</small>
       `
       div.onclick = () => openQuizModal(q)
       grid.appendChild(div)

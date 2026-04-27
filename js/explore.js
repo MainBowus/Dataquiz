@@ -1,25 +1,40 @@
 // ===== EXPLORE PAGE JS =====
 
-// ===== MOCK DATABASE INITIALIZATION =====
-const MOCK_QUIZZES = [
-  { id: 'q1', title: 'Food', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop', questions: new Array(10), plays: 1500, label: '🔥 Hot' },
-  { id: 'q2', title: 'Sports', image: 'https://images.unsplash.com/photo-1461896704190-321aa1c319e4?q=80&w=800&auto=format&fit=crop', questions: new Array(12), plays: 1200, label: '🎯 Top' },
-  { id: 'q3', title: 'Meme', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop', questions: new Array(15), plays: 3000, label: '🌟 New' },
-  { id: 'q4', title: 'Riddles', image: 'https://images.unsplash.com/photo-1516110833967-0b5716ca13e7?q=80&w=800&auto=format&fit=crop', questions: new Array(8), plays: 800, label: '💡 Daily' }
-];
+const API_URL = 'https://backend-dataquiz.onrender.com/api'
 
-function getQuizzes() {
-  const userQuizzes = JSON.parse(localStorage.getItem('my_quizzes') || '[]');
-  return [...MOCK_QUIZZES, ...userQuizzes];
+// ===== FETCH DATA FROM DATABASE =====
+async function fetchQuizzes() {
+  try {
+    const res = await fetch(`${API_URL}/quizzes`);
+    if (!res.ok) throw new Error('Failed to fetch quizzes');
+    return await res.json();
+  } catch (err) {
+    console.error('Error fetching quizzes:', err);
+    return [];
+  }
 }
 
-// ===== CAROUSEL (POPULAR QUIZZES) =====
-let popularQuizzes = [];
+// ===== CAROUSEL (NEW QUIZZES) =====
+let carouselQuizzes = [];
 let current = 0;
 
-function initCarousel() {
-  const all = getQuizzes();
-  popularQuizzes = all.sort((a, b) => (b.plays || 0) - (a.plays || 0)).slice(0, 4);
+function initCarousel(allQuizzes) {
+  // Rename section title to "New Quiz"
+  const sectionTitle = document.querySelector('.popular-section .section-title');
+  if (sectionTitle) sectionTitle.textContent = 'New Quiz';
+
+  if (!allQuizzes || allQuizzes.length === 0) {
+    if (card) {
+      card.style.backgroundImage = 'none';
+      card.style.backgroundColor = 'rgba(255,255,255,0.05)';
+      if (titleEl) titleEl.textContent = 'No quizzes available';
+      if (descEl) descEl.textContent = '';
+      if (labelEl) labelEl.style.display = 'none';
+    }
+    return;
+  }
+
+  carouselQuizzes = [...allQuizzes].reverse().slice(0, 4);
   updateCard(0);
 }
 
@@ -29,119 +44,124 @@ const descEl  = document.querySelector('.quiz-card-inner p');
 const card    = document.querySelector('.quiz-card-featured');
 
 function updateCard(index) {
-  if (!card || popularQuizzes.length === 0) return;
+  if (!card || carouselQuizzes.length === 0) return;
   card.style.opacity = '0';
   setTimeout(() => {
-    const q = popularQuizzes[index];
-    if (labelEl) labelEl.textContent = q.label || '🔥 Hot';
+    const q = carouselQuizzes[index];
+    if (labelEl) {
+      labelEl.textContent = '✨ New';
+      labelEl.style.display = 'inline-block';
+    }
     if (titleEl) titleEl.textContent = q.title;
-    if (descEl) descEl.textContent  = `Played ${q.plays || 0} times`;
-    if (card) card.style.backgroundImage = `url('${q.image}')`;
+    if (descEl) descEl.textContent  = `${q.questions?.length || 0} questions`;
+    
+    const imageUrl = q.coverImage?.url || q.image || '';
+    if (card) card.style.backgroundImage = `url('${imageUrl}')`;
     card.style.opacity = '1';
   }, 180);
 }
 
 // Carousel Controls
 document.querySelector('.carousel-btn.prev')?.addEventListener('click', () => {
-  current = (current - 1 + popularQuizzes.length) % popularQuizzes.length;
+  if (carouselQuizzes.length <= 1) return;
+  current = (current - 1 + carouselQuizzes.length) % carouselQuizzes.length;
   updateCard(current);
 });
 document.querySelector('.carousel-btn.next')?.addEventListener('click', () => {
-  current = (current + 1) % popularQuizzes.length;
+  if (carouselQuizzes.length <= 1) return;
+  current = (current + 1) % carouselQuizzes.length;
   updateCard(current);
 });
 
 // ===== DYNAMIC SECTIONS =====
 function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-function loadDynamicSections() {
-  const all = getQuizzes();
-  
-  // 1. Explore Section (Random 4)
+function loadDynamicSections(allQuizzes) {
+  const hasQuizzes = allQuizzes && allQuizzes.length > 0;
+
+  // 1. Explore Section
   const exploreGrid = document.querySelector('.categories-grid');
   if (exploreGrid) {
-    const randomExplore = shuffle([...all]).slice(0, 4);
     exploreGrid.innerHTML = '';
-    randomExplore.forEach(q => {
-      const btn = document.createElement('button');
-      btn.className = 'cat-btn';
-      btn.style.backgroundImage = `url('${q.image}')`;
-      btn.textContent = q.title;
-      btn.onclick = () => openQuizModal(q);
-      exploreGrid.appendChild(btn);
-    });
+    if (!hasQuizzes) {
+      exploreGrid.innerHTML = '<p style="opacity:0.5; grid-column: span 4; text-align:center; padding:20px; width: 100%;">No quizzes available</p>';
+    } else {
+      const randomExplore = shuffle([...allQuizzes]).slice(0, 4);
+      randomExplore.forEach(q => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn';
+        const imageUrl = q.coverImage?.url || q.image || '';
+        btn.style.backgroundImage = `url('${imageUrl}')`;
+        btn.textContent = q.title;
+        btn.onclick = () => openQuizModal(q);
+        exploreGrid.appendChild(btn);
+      });
+    }
   }
 
-  // 2. Quiz You Might Like (Random 4)
+  // 2. Quiz You Might Like
   const recBlocks = document.querySelectorAll('.rec-block');
   const mightLikeGrid = recBlocks[0]?.querySelector('.rec-grid');
   if (mightLikeGrid) {
-    const randomLike = shuffle([...all]).slice(0, 4);
     mightLikeGrid.innerHTML = '';
-    randomLike.forEach(q => {
-      const div = document.createElement('div');
-      div.className = 'rec-card';
-      div.style.backgroundImage = `url('${q.image}')`;
-      div.innerHTML = `<span>${q.title}</span>`;
-      div.onclick = () => openQuizModal(q);
-      mightLikeGrid.appendChild(div);
-    });
-  }
-
-  // 3. Play Again (Previously Played Quizzes)
-  const playAgainBlock = recBlocks[1];
-  if (playAgainBlock) {
-    const titleEl = playAgainBlock.querySelector('.rec-title');
-    if (titleEl) titleEl.textContent = "Play Again"; // Force Title
-    
-    const grid = playAgainBlock.querySelector('.rec-grid');
-    const playedQuizzes = JSON.parse(localStorage.getItem('played_quizzes') || '[]');
-    
-    if (playedQuizzes.length > 0) {
-      grid.innerHTML = '';
-      playedQuizzes.slice(0, 4).forEach(q => {
+    if (!hasQuizzes) {
+      mightLikeGrid.innerHTML = '<p style="opacity:0.5; grid-column: span 4; text-align:center; padding:20px;">No quizzes available</p>';
+    } else {
+      const randomLike = shuffle([...allQuizzes]).slice(0, 4);
+      randomLike.forEach(q => {
         const div = document.createElement('div');
         div.className = 'rec-card';
-        if (q.image) div.style.backgroundImage = `url('${q.image}')`;
+        const imageUrl = q.coverImage?.url || q.image || '';
+        div.style.backgroundImage = `url('${imageUrl}')`;
         div.innerHTML = `<span>${q.title}</span>`;
         div.onclick = () => openQuizModal(q);
-        grid.appendChild(div);
+        mightLikeGrid.appendChild(div);
       });
-    } else {
-        // Fallback: Random if nothing played yet
-        const randomMore = shuffle([...all]).slice(0, 4);
-        grid.innerHTML = '';
-        randomMore.forEach(q => {
-            const div = document.createElement('div');
-            div.className = 'rec-card';
-            div.style.backgroundImage = `url('${q.image}')`;
-            div.innerHTML = `<span>${q.title}</span>`;
-            div.onclick = () => openQuizModal(q);
-            grid.appendChild(div);
+    }
+  }
+
+  // 3. Play Again
+  const playAgainBlock = recBlocks[1];
+  if (playAgainBlock) {
+    const grid = playAgainBlock.querySelector('.rec-grid');
+    if (grid) {
+      grid.innerHTML = '';
+      if (!hasQuizzes) {
+        grid.innerHTML = '<p style="opacity:0.5; grid-column: span 4; text-align:center; padding:20px;">No quizzes available</p>';
+      } else {
+        const recentlyPlayed = [...allQuizzes].sort((a, b) => (b.plays || 0) - (a.plays || 0)).slice(0, 4);
+        recentlyPlayed.forEach(q => {
+          const div = document.createElement('div');
+          div.className = 'rec-card';
+          const imageUrl = q.coverImage?.url || q.image || '';
+          if (imageUrl) div.style.backgroundImage = `url('${imageUrl}')`;
+          div.innerHTML = `<span>${q.title}</span>`;
+          div.onclick = () => openQuizModal(q);
+          grid.appendChild(div);
         });
+      }
     }
   }
 }
 
 // ===== QUIZ MODAL =====
 function openQuizModal(quiz) {
-  // DISABLE POPUP ON MOBILE
-  if (window.innerWidth <= 600) {
-    console.log('Mobile view: skipping pop-up');
-    return;
-  }
+  if (window.innerWidth <= 600) return;
 
   const modal = document.getElementById('quiz-modal');
   if (!modal) return;
   const titleEl = document.getElementById('modal-title');
   if (titleEl) titleEl.textContent = quiz.title || 'Quiz';
-  const previewEl = document.querySelector('.modal-preview');
-  if (previewEl) previewEl.style.backgroundImage = `url('${quiz.image}')`;
-  const qNumEl = document.getElementById('modal-q-num');
   
-  // Use length if it's an array, otherwise default to 10
-  const count = (quiz.questions && Array.isArray(quiz.questions)) ? quiz.questions.length : 10;
+  const previewEl = document.querySelector('.modal-preview');
+  const imageUrl = quiz.coverImage?.url || quiz.image || '';
+  if (previewEl) previewEl.style.backgroundImage = `url('${imageUrl}')`;
+  
+  const qNumEl = document.getElementById('modal-q-num');
+  const count = (quiz.questions && Array.isArray(quiz.questions)) ? quiz.questions.length : 0;
   if (qNumEl) qNumEl.textContent = String(count);
+
+  window._selectedQuizId = quiz._id;
 
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -154,10 +174,75 @@ function closeQuizModal() {
 }
 
 // ===== INITIALIZE =====
-document.addEventListener('DOMContentLoaded', () => {
-  initCarousel();
-  loadDynamicSections();
+let globalAllQuizzes = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const allQuizzes = await fetchQuizzes();
+  globalAllQuizzes = allQuizzes;
+  initCarousel(allQuizzes);
+  loadDynamicSections(allQuizzes);
+  initSearch();
 });
+
+// ===== SEARCH FUNCTIONALITY =====
+function initSearch() {
+  const searchInput = document.getElementById('search-input');
+  const searchDropdown = document.getElementById('search-dropdown');
+  
+  if (!searchInput || !searchDropdown) return;
+
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    searchDropdown.innerHTML = '';
+    
+    if (query.length === 0) {
+      searchDropdown.classList.remove('show');
+      return;
+    }
+
+    const filtered = globalAllQuizzes.filter(q => 
+      q.title && q.title.toLowerCase().includes(query)
+    ).slice(0, 5); // Limit results
+
+    if (filtered.length === 0) {
+      searchDropdown.innerHTML = '<div style="padding: 15px 25px; color: #777; font-family: \'Nunito\', sans-serif;">No quizzes found</div>';
+      searchDropdown.classList.add('show');
+      return;
+    }
+
+    filtered.forEach(q => {
+      const item = document.createElement('div');
+      item.className = 'search-item';
+      
+      const imageUrl = q.coverImage?.url || q.image || '';
+      
+      item.innerHTML = `
+        <div class="search-item-img" style="background-image: url('${imageUrl}');"></div>
+        <div class="search-item-info">
+          <span class="search-item-title">${q.title}</span>
+          <span class="search-item-desc">${q.questions?.length || 0} questions</span>
+        </div>
+      `;
+      
+      item.onclick = () => {
+        searchInput.value = '';
+        searchDropdown.classList.remove('show');
+        openQuizModal(q);
+      };
+      
+      searchDropdown.appendChild(item);
+    });
+    
+    searchDropdown.classList.add('show');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+      searchDropdown.classList.remove('show');
+    }
+  });
+}
 
 // Navbar logic
 (function () {
@@ -226,11 +311,11 @@ function confirmLogout() {
   sessionStorage.clear()
   window.location.href = '../index.html';
 }
-function toggleHostDropdown() {
-  document.getElementById('host-menu').classList.toggle('show');
-  document.querySelector('.modal-host-btn').classList.toggle('active');
+function hostGame(mode) { 
+  if (window._selectedQuizId) {
+    window.location.href = `../game/host/host-lobby.html?quizId=${window._selectedQuizId}&mode=${mode}`;
+  }
 }
-function hostGame(mode) { window.location.href = '../game/host/host-lobby.html?mode=' + mode; }
 
 document.getElementById('quiz-modal')?.addEventListener('click', function(e) { if (e.target === this) closeQuizModal(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeQuizModal(); });
