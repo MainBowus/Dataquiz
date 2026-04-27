@@ -1,81 +1,68 @@
 const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
-const gamePin = sessionStorage.getItem('socket_pin') || sessionStorage.getItem('game_pin') || '000000'
+
+const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
+const totalQ = quizData ? quizData.questions.length : 0
+let socket = null
+const gamePin = sessionStorage.getItem('socket_pin')
 
 document.addEventListener('DOMContentLoaded', () => {
-  const footerPin = document.getElementById('footer-pin')
-  if (footerPin) footerPin.textContent = gamePin
+  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+  const progEl = document.getElementById('hud-progress')
+  if (progEl) progEl.textContent = (currentQ + 1) + ' / ' + totalQ
 
-  const socket = io(SOCKET_URL)
+  socket = io(SOCKET_URL)
+
   socket.on('connect', () => {
-    if (gamePin) socket.emit('game:get-scoreboard', { pin: gamePin })
+    console.log('Host scoreboard connected:', socket.id)
+    if (gamePin) {
+      socket.emit('game:reconnect-host', { pin: gamePin })
+      socket.emit('game:get-scoreboard', { pin: gamePin })
+    }
   })
 
   socket.on('game:scoreboard', (data) => {
-    fillResults(data.scoreboard)
+    buildScoreboard(data.scoreboard)
   })
 
-  // fallback ถ้า socket ไม่ได้ข้อมูล
-  setTimeout(() => {
-    if (!document.getElementById('info-1').textContent || document.getElementById('info-1').textContent === 'Username') {
-      fillResults([])
-    }
-  }, 3000)
-
-  launchConfetti()
+  socket.on('game:error', (data) => {
+    console.error('Game error:', data.message)
+  })
 })
 
-function fillResults(scoreboard) {
-  if (scoreboard.length > 0 && scoreboard[0]) {
-    document.getElementById('winner-sub').textContent = `${scoreboard[0].name} has won the game!`
-  }
+function buildScoreboard(scoreboard) {
+  const container = document.getElementById('sb-list')
+  if (!container) return
 
-  const slots = [
-    { rank: 1, infoId: 'info-1' },
-    { rank: 2, infoId: 'info-2' },
-    { rank: 3, infoId: 'info-3' },
-  ]
+  const top4 = scoreboard.slice(0, 4)
+  container.innerHTML = ''
 
-  slots.forEach(slot => {
-    const player = scoreboard[slot.rank - 1]
-    const infoEl = document.getElementById(slot.infoId)
-    if (player && infoEl) {
-      infoEl.textContent = `${player.name} (${player.score} pts)`
-    }
+  top4.forEach((player, index) => {
+    const rank = index + 1
+    const card = document.createElement('div')
+    card.className = 'sb-card ' + (rank === 1 ? 'first' : '')
+    card.innerHTML =
+      '<div class="sb-rank-num">' + rank + '</div>' +
+      '<div class="sb-username">' + player.name + '</div>' +
+      '<div class="sb-score-group">' +
+        '<span class="sb-score-label">Score</span>' +
+        '<div class="sb-score-val">' + player.score + '</div>' +
+      '</div>'
+    container.appendChild(card)
   })
+
+  if (top4.length === 0) {
+    container.innerHTML = '<div style="text-align:center;font-size:24px;margin-top:50px;">Waiting for players...</div>'
+  }
 }
 
-function endGame() {
-  localStorage.removeItem('current_quiz')
-  sessionStorage.clear()
-  window.location.href = '../../dashboard/explore.html'
-}
+function goNext() {
+  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+  const nextQ = currentQ + 1
 
-function launchConfetti() {
-  const canvas = document.getElementById('confetti-canvas')
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-  const pieces = []
-  const COLORS = ['#ccff00', '#00d2ff', '#ff3b5c', '#ffffff', '#ffd600', '#ff8c00']
-  for (let i = 0; i < 250; i++) {
-    pieces.push({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
-      w: Math.random() * 12 + 8, h: Math.random() * 10 + 6,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      rot: Math.random() * 360, speed: Math.random() * 4 + 3,
-      rSpeed: Math.random() * 6 - 3, drift: Math.random() * 2 - 1
-    })
+  if (nextQ >= totalQ) {
+    window.location.href = 'host-final.html'
+  } else {
+    sessionStorage.setItem('current_question', nextQ)
+    window.location.href = 'host-question.html'
   }
-  function update() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    pieces.forEach(p => {
-      p.y += p.speed; p.x += p.drift; p.rot += p.rSpeed
-      if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width }
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180)
-      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore()
-    })
-    requestAnimationFrame(update)
-  }
-  update()
 }
