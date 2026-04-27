@@ -7,12 +7,8 @@
   <link rel="stylesheet" href="../css/host-scoreboard.css?v=1" />
 </head>
 <body>
-
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <script src="../js/host-lobby.js"></script>
   <div class="hq-bg"></div>
 
-  <!-- TOP HUD -->
   <div class="hq-hud">
     <div class="hud-left">
       <div class="hud-box" id="hud-type">Multiple Choice</div>
@@ -23,18 +19,15 @@
     </div>
   </div>
 
-  <!-- TITLE -->
   <div class="scoreboard-header">
     <h1 class="sb-title">SCOREBOARD</h1>
   </div>
 
-  <!-- MAIN: Ranking List -->
   <main class="sb-main">
-    <div class="sb-list" id="sb-list">
-      <!-- Logic in host-scoreboard.js will fill this -->
-    </div>
+    <div class="sb-list" id="sb-list"></div>
   </main>
 
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   <script src="../js/host-scoreboard.js"></script>
 </body>
 </html>
