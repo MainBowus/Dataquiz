@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
   const questions = quizData ? quizData.questions : []
-  const totalQ = questions.length
+  const totalQ = parseInt(sessionStorage.getItem('total_questions') || '0') || questions.length
 
   const progEl = document.getElementById('hud-progress')
   if (progEl) progEl.textContent = (currentQ + 1) + ' / ' + totalQ
@@ -21,8 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (q) {
     document.getElementById('q-text').textContent = q.questionText
     const imgWrap = document.getElementById('q-image-wrap')
+    const imgEl = document.getElementById('q-image')
     if (q.questionImage && q.questionImage.url) {
-      document.getElementById('q-image').src = q.questionImage.url
+      if (imgEl) imgEl.src = q.questionImage.url
       if (imgWrap) imgWrap.style.display = 'flex'
     } else {
       if (imgWrap) imgWrap.style.display = 'none'
@@ -38,21 +39,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  const isCorrect = sessionStorage.getItem('last_answer_result') === 'true'
+  const banner = document.getElementById('banner')
+  const resultText = document.getElementById('result-text')
+  if (resultText) resultText.textContent = isCorrect ? 'CORRECT!' : 'INCORRECT!'
+  if (banner) {
+    banner.classList.add(isCorrect ? 'correct-banner' : 'wrong-banner')
+  }
+
   const socket = io(SOCKET_URL)
 
   socket.on('connect', () => {
     if (gamePin) socket.emit('game:join', { pin: gamePin, name: state.name })
   })
 
-  socket.on('game:time-up', () => {
-    window.location.href = 'player-result.html'
+  socket.on('game:question', (data) => {
+    sessionStorage.setItem('current_question', data.questionIndex)
+    window.location.href = 'player-question.html'
   })
 
-  socket.on('game:answer-result', (data) => {
-    sessionStorage.setItem('last_answer_result', data.isCorrect)
-    sessionStorage.setItem('earned_points', data.earnedPoints)
-    state.score = data.totalScore
-    sessionStorage.setItem('player_state', JSON.stringify(state))
-    window.location.href = 'player-result.html'
+  socket.on('game:ended', () => {
+    window.location.href = 'player-final.html'
+  })
+
+  socket.on('game:error', (data) => {
+    console.error('Game error:', data.message)
   })
 })
