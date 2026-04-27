@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('connect', () => {
     console.log('Host answering connected:', socket.id)
     if (gamePin) {
+      socket.emit('game:reconnect-host', { pin: gamePin })
       socket.emit('game:next-question', { pin: gamePin })
     }
   })
@@ -83,4 +84,4 @@ function startCountdown() {
 
 function moveToReveal() {
   window.location.href = 'host-reveal.html'
-}
+}ห
