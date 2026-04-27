@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   socket = io(SOCKET_URL)
 
   socket.on('connect', () => {
-    console.log('Host scoreboard connected:', socket.id)
+    console.log('Host final connected:', socket.id)
     if (gamePin) {
       socket.emit('game:reconnect-host', { pin: gamePin })
       socket.emit('game:get-scoreboard', { pin: gamePin })
