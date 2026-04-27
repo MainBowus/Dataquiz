@@ -7,6 +7,7 @@ let totalQ = questions.length
 let timeLeft = questions[currentQ]?.timeLimit || 20
 let timerInterval = null
 let socket = null
+let nextQuestionSent = false
 const gamePin = sessionStorage.getItem('socket_pin')
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,7 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Host answering connected:', socket.id)
     if (gamePin) {
       socket.emit('game:reconnect-host', { pin: gamePin })
-      socket.emit('game:next-question', { pin: gamePin })
+      if (!nextQuestionSent) {
+        nextQuestionSent = true
+        socket.emit('game:next-question', { pin: gamePin })
+      }
     }
   })
 
@@ -50,10 +54,10 @@ function loadQuestionData() {
   const imgEl = document.getElementById('q-image')
   const imgWrap = document.getElementById('q-image-wrap')
   if (q.questionImage && q.questionImage.url) {
-    imgEl.src = q.questionImage.url
-    imgWrap.style.display = 'flex'
+    if (imgEl) imgEl.src = q.questionImage.url
+    if (imgWrap) imgWrap.style.display = 'flex'
   } else {
-    imgWrap.style.display = 'none'
+    if (imgWrap) imgWrap.style.display = 'none'
   }
 
   const grid = document.getElementById('answers-grid')
