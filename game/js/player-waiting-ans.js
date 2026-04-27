@@ -1,3 +1,5 @@
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+
 document.addEventListener('DOMContentLoaded', () => {
   const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
   const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
@@ -24,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       if (imgWrap) imgWrap.style.display = 'none'
     }
-
     const mcGrid = document.getElementById('multiple-choice-grid')
     const oeArea = document.getElementById('open-ended-area')
     if (q.questionType === 'open-ended') {
@@ -36,12 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // รอ host signal reveal
-  const expectedSignal = 'reveal_' + currentQ
-  const interval = setInterval(() => {
-    if (localStorage.getItem('host_signal') === expectedSignal) {
-      clearInterval(interval)
-      window.location.href = 'player-result.html'
-    }
-  }, 1000)
+  // รอ time-up จาก server
+  const socket = io(SOCKET_URL)
+  socket.on('game:time-up', () => {
+    window.location.href = 'player-result.html'
+  })
+  socket.on('game:answer-result', (data) => {
+    sessionStorage.setItem('last_answer_result', data.isCorrect)
+    sessionStorage.setItem('earned_points', data.earnedPoints)
+    state.score = data.totalScore
+    sessionStorage.setItem('player_state', JSON.stringify(state))
+    window.location.href = 'player-result.html'
+  })
 })
