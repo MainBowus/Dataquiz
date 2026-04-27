@@ -14,20 +14,26 @@ document.addEventListener('DOMContentLoaded', () => {
   startCountdown()
 
   socket = io(SOCKET_URL)
+
   socket.on('connect', () => {
-    console.log('Host answering connected')
+    console.log('Host answering connected:', socket.id)
+    if (gamePin) {
+      socket.emit('game:next-question', { pin: gamePin })
+    }
   })
 
-  // รับจำนวนคนตอบ
   socket.on('game:answer-count', (data) => {
     const countEl = document.getElementById('answer-count')
-    if (countEl) countEl.textContent = `${data.answeredCount} / ${data.totalPlayers} answered`
+    if (countEl) countEl.textContent = data.answeredCount + ' / ' + data.totalPlayers + ' answered'
   })
 
-  // ถ้าทุกคนตอบแล้ว → หมดเวลาเลย
   socket.on('game:time-up', () => {
     clearInterval(timerInterval)
     moveToReveal()
+  })
+
+  socket.on('game:error', (data) => {
+    console.error('Game error:', data.message)
   })
 })
 
@@ -37,12 +43,12 @@ function loadQuestionData() {
 
   const qType = q.questionType === 'multiple-choice' ? 'Multiple Choice' : 'Open-ended'
   document.getElementById('hud-type').textContent = qType
-  document.getElementById('hud-progress').textContent = `${currentQ + 1} / ${totalQ}`
+  document.getElementById('hud-progress').textContent = (currentQ + 1) + ' / ' + totalQ
   document.getElementById('q-text').textContent = q.questionText
 
   const imgEl = document.getElementById('q-image')
   const imgWrap = document.getElementById('q-image-wrap')
-  if (q.questionImage?.url) {
+  if (q.questionImage && q.questionImage.url) {
     imgEl.src = q.questionImage.url
     imgWrap.style.display = 'flex'
   } else {
@@ -56,7 +62,7 @@ function loadQuestionData() {
     if (grid) {
       grid.style.display = 'grid'
       q.options.forEach((opt, i) => {
-        const card = document.getElementById(`ans-${i}`)
+        const card = document.getElementById('ans-' + i)
         if (card) card.textContent = opt.text
       })
     }
@@ -65,15 +71,9 @@ function loadQuestionData() {
 
 function startCountdown() {
   const timerEl = document.getElementById('hud-timer')
-
-  // บอก server ให้ส่งคำถามถัดไป
-  if (socket && gamePin) {
-    socket.emit('game:next-question', { pin: gamePin })
-  }
-
   timerInterval = setInterval(() => {
     timeLeft--
-    if (timerEl) timerEl.textContent = `TIME ${timeLeft}`
+    if (timerEl) timerEl.textContent = 'TIME ' + timeLeft
     if (timeLeft <= 0) {
       clearInterval(timerInterval)
       moveToReveal()
