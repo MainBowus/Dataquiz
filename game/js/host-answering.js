@@ -1,17 +1,34 @@
-const TOTAL_TIME = 10
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
 
-// ดึง quiz จาก localStorage ที่ host-lobby โหลดไว้
 const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
 const questions = quizData ? quizData.questions : []
-
 let currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
 let totalQ = questions.length
-let timeLeft = TOTAL_TIME
+let timeLeft = questions[currentQ]?.timeLimit || 20
 let timerInterval = null
+let socket = null
+const gamePin = sessionStorage.getItem('socket_pin')
 
 document.addEventListener('DOMContentLoaded', () => {
   loadQuestionData()
   startCountdown()
+
+  socket = io(SOCKET_URL)
+  socket.on('connect', () => {
+    console.log('Host answering connected')
+  })
+
+  // รับจำนวนคนตอบ
+  socket.on('game:answer-count', (data) => {
+    const countEl = document.getElementById('answer-count')
+    if (countEl) countEl.textContent = `${data.answeredCount} / ${data.totalPlayers} answered`
+  })
+
+  // ถ้าทุกคนตอบแล้ว → หมดเวลาเลย
+  socket.on('game:time-up', () => {
+    clearInterval(timerInterval)
+    moveToReveal()
+  })
 })
 
 function loadQuestionData() {
@@ -48,6 +65,12 @@ function loadQuestionData() {
 
 function startCountdown() {
   const timerEl = document.getElementById('hud-timer')
+
+  // บอก server ให้ส่งคำถามถัดไป
+  if (socket && gamePin) {
+    socket.emit('game:next-question', { pin: gamePin })
+  }
+
   timerInterval = setInterval(() => {
     timeLeft--
     if (timerEl) timerEl.textContent = `TIME ${timeLeft}`
@@ -59,6 +82,5 @@ function startCountdown() {
 }
 
 function moveToReveal() {
-  localStorage.setItem('host_signal', 'reveal_' + currentQ)
   window.location.href = 'host-reveal.html'
 }
