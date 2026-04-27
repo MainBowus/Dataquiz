@@ -3,7 +3,7 @@
    Quiz Editor Logic
    =========================== */
 
-const API_URL = 'https://backend-dataquiz.onrender.com/api'
+const API_URL = '/api'
 
 // ===== STATE =====
 let questions = [

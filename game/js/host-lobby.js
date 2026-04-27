@@ -1,5 +1,5 @@
 const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
-const API_URL = 'https://backend-dataquiz.onrender.com/api'
+const API_URL = '/api'
 
 let socket = null
 let quizData = null

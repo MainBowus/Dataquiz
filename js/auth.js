@@ -3,7 +3,7 @@
 // Auth page logic
 // =====================
 
-const API_URL = 'https://backend-dataquiz.onrender.com/api'
+const API_URL = '/api'
 
 /* ---- Switch Tabs ---- */
 function switchTab(tab) {
