@@ -11,10 +11,8 @@
 </head>
 <body>
 
-  <!-- BACKGROUND -->
   <div class="bg" style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(to right, #05162a 0%, #0d2137 50%, #162e4a 100%);"></div>
 
-  <!-- NAVBAR -->
   <nav class="navbar">
     <a href="../index.html" class="navbar-logo">
       <img src="../assets/images/logo.png" alt="QuizDATA Logo" />
@@ -47,7 +45,6 @@
           <p id="p-email-top">user@example.com</p>
         </div>
       </div>
-
       <div class="info-grid">
         <div class="info-item">
           <div class="info-label">Email</div>
@@ -61,10 +58,32 @@
     </div>
 
     <h2 class="my-quizzes-title">My Created Quizzes</h2>
-    <div class="rec-grid" id="my-quizzes-grid">
-      <!-- User quizzes populated here -->
-    </div>
+    <div class="rec-grid" id="my-quizzes-grid"></div>
   </main>
+
+  <!-- ===== QUIZ MODAL ===== -->
+  <div class="modal-overlay" id="quiz-modal">
+    <div class="modal-box">
+
+      <button class="modal-close" onclick="closeQuizModal()" style="top: 15px; right: 5px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <h2 id="modal-title" style="font-family: 'Archivo Black', sans-serif; font-size: 32px; color: #fff; margin-bottom: 25px; text-transform: capitalize;">Quiz Title</h2>
+
+      <div class="modal-preview"></div>
+
+      <p class="modal-q-count">Question amount : <span id="modal-q-num">0</span></p>
+
+      <button class="modal-host-btn" onclick="hostGame()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        <span>Host game live</span>
+      </button>
+
+      <p class="modal-subtitle">Go live, share the code, and watch the competition begin! Real-time questions. Real-time excitement.</p>
+
+    </div>
+  </div>
 
   <!-- Logout Modal -->
   <div id="logout-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;transition:opacity 0.2s;">
