@@ -1,7 +1,7 @@
 const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
 
 let socket = null
-let time = 20
+let time = 30
 let timerInterval = null
 let answered = false
 const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
