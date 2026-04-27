@@ -256,7 +256,13 @@ async function saveQuiz() {
       body: formData
     });
 
-    const data = await res.json();
+    if (res.status === 502 || res.status === 503) {
+      showToast('Server กำลังตื่น รอ 30 วินาทีแล้วลองกด Save อีกครั้ง', 'error');
+      return;
+    }
+
+    let data = {};
+    try { data = await res.json(); } catch { /* empty body */ }
 
     if (!res.ok) {
       showToast(data.message || 'Save failed', 'error');
