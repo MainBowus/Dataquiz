@@ -1,76 +1,56 @@
-/* ===========================
-   js/host-reveal.js
-   Host Reveal Phase Logic
-   =========================== */
+const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
+const questions = quizData ? quizData.questions : []
 
-const mockQuestions = [
-  {
-    type: 'Multiple Choice',
-    text: 'What is this character called?',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-    answers: ['Milk Dragon', 'Black Dragon', 'Big Dragon', 'Dragon'],
-    correct: 0,
-  },
-  {
-    type: 'Open-ended',
-    text: 'What is the capital of Thailand?',
-    image: 'https://images.unsplash.com/photo-1504966981333-1ac340945d80?q=80&w=800&auto=format&fit=crop',
-    correctAnswer: 'Bangkok'
-  }
-];
-
-let currentQ = parseInt(sessionStorage.getItem('current_question') || '0');
-let totalQ    = mockQuestions.length;
+let currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+let totalQ = questions.length
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadRevealData();
-});
+  loadRevealData()
+})
 
 function loadRevealData() {
-  const q = mockQuestions[currentQ];
-  if (!q) return;
+  const q = questions[currentQ]
+  if (!q) return
 
-  // Header
-  document.getElementById('hud-type').textContent = q.type;
-  document.getElementById('hud-progress').textContent = `${currentQ + 1} / ${totalQ}`;
-  
-  // Content
-  document.getElementById('q-text').textContent = q.text;
-  
-  const imgEl = document.getElementById('q-image');
-  const imgWrap = document.getElementById('q-image-wrap');
-  if (q.image) {
-    imgEl.src = q.image;
-    imgWrap.style.display = 'flex';
+  const qType = q.questionType === 'multiple-choice' ? 'Multiple Choice' : 'Open-ended'
+  document.getElementById('hud-type').textContent = qType
+  document.getElementById('hud-progress').textContent = `${currentQ + 1} / ${totalQ}`
+  document.getElementById('q-text').textContent = q.questionText
+
+  const imgEl = document.getElementById('q-image')
+  const imgWrap = document.getElementById('q-image-wrap')
+  if (q.questionImage?.url) {
+    imgEl.src = q.questionImage.url
+    imgWrap.style.display = 'flex'
   } else {
-    imgWrap.style.display = 'none';
+    imgWrap.style.display = 'none'
   }
 
-  // Answers UI
-  const grid = document.getElementById('answers-grid');
-  if (q.type === 'Open-ended') {
+  const grid = document.getElementById('answers-grid')
+  if (q.questionType === 'open-ended') {
+    const correctAns = q.acceptedAnswers?.join(', ') || '-'
     if (grid) {
-      grid.innerHTML = `<div class="answer-card correct" style="grid-column: 1 / -1; width: 100%; text-align: center;">Correct Answer: ${q.correctAnswer}</div>`;
-      grid.style.display = 'grid';
+      grid.innerHTML = `<div class="answer-card correct" style="grid-column: 1 / -1; width: 100%; text-align: center;">Correct Answer: ${correctAns}</div>`
+      grid.style.display = 'grid'
     }
   } else {
     if (grid) {
-      grid.style.display = 'grid';
-      q.answers.forEach((ans, i) => {
-        const card = document.getElementById(`ans-${i}`);
+      grid.style.display = 'grid'
+      q.options.forEach((opt, i) => {
+        const card = document.getElementById(`ans-${i}`)
         if (card) {
-          card.textContent = ans;
-          if (i === q.correct) {
-            card.classList.add('correct');
+          card.textContent = opt.text
+          if (opt.isCorrect) {
+            card.classList.add('correct')
           } else {
-            card.classList.remove('correct');
+            card.classList.remove('correct')
           }
         }
-      });
+      })
     }
   }
 }
 
 function goNext() {
-  window.location.href = 'host-scoreboard.html';
+  window.location.href = 'host-scoreboard.html'
 }
