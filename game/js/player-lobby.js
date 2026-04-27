@@ -8,21 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('display-name').textContent = state.name
 
-  // เชื่อม Socket.IO
   socket = io(SOCKET_URL)
 
   socket.on('connect', () => {
-    console.log('Player connected:', socket.id)
-    // Join เกมด้วย PIN และชื่อ
-    const pin = state.pin
-    socket.emit('game:join', { pin, name: state.name })
+    console.log('Player lobby connected:', socket.id)
+    socket.emit('game:join', { pin: state.pin, name: state.name })
   })
 
   socket.on('game:joined', (data) => {
     document.getElementById('display-quiz-name').textContent = data.quizTitle || 'QUIZ'
     sessionStorage.setItem('total_questions', data.totalQuestions)
 
-    // โหลด quiz data จาก localStorage ที่ host เก็บไว้ (ถ้ามี)
+    // โหลด quiz data จาก localStorage ถ้ามี
     const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
     if (quizData) {
       document.getElementById('display-quiz-name').textContent = quizData.title
@@ -43,10 +40,5 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('game:host-disconnected', () => {
     alert('Host has disconnected. Game ended.')
     window.location.href = '../../dashboard/join.html'
-  })
-
-  // เก็บ socket id ไว้ใช้หน้าถัดไป
-  socket.on('connect', () => {
-    sessionStorage.setItem('socket_id', socket.id)
   })
 })
