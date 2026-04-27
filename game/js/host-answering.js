@@ -84,4 +84,4 @@ function startCountdown() {
 
 function moveToReveal() {
   window.location.href = 'host-reveal.html'
-}ห
+}
