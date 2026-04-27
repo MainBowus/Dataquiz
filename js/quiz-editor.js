@@ -237,13 +237,17 @@ async function saveQuiz() {
     formData.append('category', 'General');
     formData.append('questions', JSON.stringify(formattedQuestions));
 
-    const imageB64 = sessionStorage.getItem('setup_quiz_image_b64')
-    const imageType = sessionStorage.getItem('setup_quiz_image_type') || 'image/jpeg'
-    if (imageB64) {
-      const fetchRes = await fetch(imageB64)
-      const blob = await fetchRes.blob()
-      const ext = imageType.split('/')[1] || 'jpg'
-      formData.append('cover', blob, `cover.${ext}`)
+    try {
+      const imageB64 = sessionStorage.getItem('setup_quiz_image_b64')
+      const imageType = sessionStorage.getItem('setup_quiz_image_type') || 'image/jpeg'
+      if (imageB64) {
+        const fetchRes = await fetch(imageB64)
+        const blob = await fetchRes.blob()
+        const ext = imageType.split('/')[1] || 'jpg'
+        formData.append('cover', blob, `cover.${ext}`)
+      }
+    } catch (imgErr) {
+      console.warn('Cover image skipped:', imgErr.message)
     }
 
     const res = await fetch(`${API_URL}/quizzes`, {
