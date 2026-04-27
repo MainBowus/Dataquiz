@@ -1,35 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
-  document.getElementById('display-name').textContent = state.name
+  const state = JSON.parse(sessionStorage.getItem('player_state'));
+  
+  // เช็คก่อนว่า element มีอยู่ไหม
+  const nameEl = document.getElementById('display-name');
+  if (nameEl && state) nameEl.textContent = state.name;
 
-  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0');
+  const qNumEl = document.getElementById('display-q-number');
+  if (qNumEl) qNumEl.textContent = `Question ${currentQ + 1}`;
 
-  // ดึง quiz จาก localStorage ที่ host โหลดไว้
-  const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
-  const questions = quizData ? quizData.questions : []
-  const totalQ = questions.length
+  let count = 3;
+  const countEl = document.getElementById('gr-countdown');
+  if (!countEl) return;
 
-  const progEl = document.getElementById('hud-progress')
-  if (progEl) progEl.textContent = `${currentQ + 1} / ${totalQ}`
+  countEl.textContent = count;
 
-  const statsEl = document.getElementById('hud-stats')
-  if (statsEl) statsEl.textContent = `#${state.rank || 1} Score ${state.score || 0}`
-
-  const q = questions[currentQ]
-  if (q) {
-    document.getElementById('q-text').textContent = q.questionText
-
-    const imgEl = document.getElementById('q-image')
-    const imgWrap = document.getElementById('q-image-wrap')
-    if (q.questionImage?.url) {
-      imgEl.src = q.questionImage.url
-      imgWrap.style.display = 'flex'
+  const interval = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(interval);
+      window.location.href = 'player-question-display.html';
     } else {
-      if (imgWrap) imgWrap.style.display = 'none'
+      countEl.textContent = count;
     }
-  }
-
-  setTimeout(() => {
-    window.location.href = 'player-answering.html'
-  }, 3000)
-})
+  }, 1000);
+});
