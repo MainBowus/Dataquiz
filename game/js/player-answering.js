@@ -121,8 +121,9 @@ function submitAnswer(index) {
 function submitOpenEnded() {
   if (answered) return
   answered = true
-  sessionStorage.setItem('open_answer', document.getElementById('open-ended-input').value)
+  const answerText = document.getElementById('open-ended-input').value
+  sessionStorage.setItem('open_answer', answerText)
   if (socket && gamePin) {
-    socket.emit('game:answer', { pin: gamePin, answerIndex: 0 })
+    socket.emit('game:answer', { pin: gamePin, answerIndex: 0, answerText })
   }
 }
