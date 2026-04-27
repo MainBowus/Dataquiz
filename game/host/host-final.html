@@ -7,59 +7,37 @@
   <link rel="stylesheet" href="../css/host-final.css" />
 </head>
 <body>
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <script src="../js/host-lobby.js"></script>
-  <!-- Background -->
   <div class="final-bg"></div>
-
-  <!-- CONFETTI -->
   <canvas id="confetti-canvas"></canvas>
 
   <main class="final-main">
-
-    <!-- WINNER SECTION -->
     <div class="winner-section">
       <div class="winner-title">WINNER</div>
       <div class="winner-sub" id="winner-sub">Username has won the game!!!</div>
     </div>
 
-    <!-- PODIUM -->
     <div class="podium-wrap">
-
-      <!-- 2nd place -->
       <div class="podium-slot">
         <div class="podium-avatar ava-silver">🥈</div>
         <div class="podium-info" id="info-2">Username</div>
-        <div class="podium-block block-2">
-          <span class="podium-num">2</span>
-        </div>
+        <div class="podium-block block-2"><span class="podium-num">2</span></div>
       </div>
-
-      <!-- 1st place -->
       <div class="podium-slot">
         <div class="podium-avatar ava-gold">🥇</div>
         <div class="podium-info" id="info-1">Username</div>
-        <div class="podium-block block-1">
-          <span class="podium-num">1</span>
-        </div>
+        <div class="podium-block block-1"><span class="podium-num">1</span></div>
       </div>
-
-      <!-- 3rd place -->
       <div class="podium-slot">
         <div class="podium-avatar ava-bronze">🥉</div>
         <div class="podium-info" id="info-3">Username</div>
-        <div class="podium-block block-3">
-          <span class="podium-num">3</span>
-        </div>
+        <div class="podium-block block-3"><span class="podium-num">3</span></div>
       </div>
-
     </div>
 
-    <!-- ACTION -->
     <button class="end-btn" onclick="endGame()">End game</button>
-
   </main>
 
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   <script src="../js/host-final.js"></script>
 </body>
 </html>
