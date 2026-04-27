@@ -8,11 +8,8 @@
 </head>
 <body>
 
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <script src="../js/host-lobby.js"></script>
   <div class="hq-bg"></div>
 
-  <!-- TOP HUD (Identical to Display page) -->
   <div class="hq-hud">
     <div class="hud-left">
       <div class="hud-box" id="hud-type">Multiple Choice</div>
@@ -23,7 +20,6 @@
     </div>
   </div>
 
-  <!-- CENTER: Question + Image + Answers -->
   <main class="hq-main">
     <div class="question-container">
       <div class="question-text-box" id="q-text">What is this character called?</div>
@@ -34,7 +30,6 @@
     </div>
 
     <div class="answers-grid" id="answers-grid">
-      <!-- 4 Answer boxes -->
       <div class="answer-card" id="ans-0">Answer 1</div>
       <div class="answer-card" id="ans-1">Answer 2</div>
       <div class="answer-card" id="ans-2">Answer 3</div>
@@ -42,6 +37,7 @@
     </div>
   </main>
 
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   <script src="../js/host-answering.js"></script>
 </body>
 </html>
