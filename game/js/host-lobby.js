@@ -97,13 +97,13 @@ function startGame() {
 
   socket.emit('game:start', { pin: gamePin })
 
-  socket.on('game:started', () => {
+  socket.once('game:started', () => {
     sessionStorage.setItem('current_question', '0')
     sessionStorage.setItem('socket_pin', gamePin)
     setTimeout(() => { window.location.href = 'host-question.html' }, 800)
   })
 
-  socket.on('game:error', (data) => {
+  socket.once('game:error', (data) => {
     alert(data.message)
     btn.disabled = false
     btn.textContent = 'START'
