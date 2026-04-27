@@ -237,8 +237,14 @@ async function saveQuiz() {
     formData.append('category', 'General');
     formData.append('questions', JSON.stringify(formattedQuestions));
 
-
-
+    const imageB64 = sessionStorage.getItem('setup_quiz_image_b64')
+    const imageType = sessionStorage.getItem('setup_quiz_image_type') || 'image/jpeg'
+    if (imageB64) {
+      const fetchRes = await fetch(imageB64)
+      const blob = await fetchRes.blob()
+      const ext = imageType.split('/')[1] || 'jpg'
+      formData.append('cover', blob, `cover.${ext}`)
+    }
 
     const res = await fetch(`${API_URL}/quizzes`, {
       method: 'POST',
@@ -256,6 +262,8 @@ async function saveQuiz() {
     // Cleanup
     sessionStorage.removeItem('setup_quiz_name');
     sessionStorage.removeItem('setup_quiz_type');
+    sessionStorage.removeItem('setup_quiz_image_b64');
+    sessionStorage.removeItem('setup_quiz_image_type');
 
     window._coverImageFile = null;
 
