@@ -3,6 +3,8 @@
    Quiz Editor Logic
    =========================== */
 
+const API_URL = 'https://backend-dataquiz.onrender.com/api'
+
 // ===== STATE =====
 let questions = [
   { text: '', image: null, answers: ['', '', '', ''], correct: null }
@@ -11,7 +13,6 @@ let currentQ = 0;
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  // Set quiz title from sessionStorage
   const savedTitle = sessionStorage.getItem('setup_quiz_name');
   if (savedTitle) {
     const titleInput = document.getElementById('quiz-title-input');
@@ -36,7 +37,6 @@ function renderTabs() {
     container.appendChild(btn);
   });
 
-  // Add button
   const addBtn = document.createElement('button');
   addBtn.className = 'q-tab-add';
   addBtn.textContent = '+';
@@ -66,23 +66,19 @@ function loadQuestion(index) {
   const q = questions[index];
   if (!q) return;
 
-  // Question text
   const qInput = document.getElementById('question-text');
   if (qInput) qInput.value = q.text || '';
 
-  // Answer inputs
   const inputs = document.querySelectorAll('.answer-input');
   inputs.forEach((inp, i) => {
     inp.value = (q.answers && q.answers[i]) || '';
   });
 
-  // Answer Options UI State
   const options = document.querySelectorAll('.answer-option');
   options.forEach((opt, i) => {
     opt.classList.toggle('correct', q.correct === i);
   });
 
-  // Image preview
   const previewArea = document.getElementById('media-preview');
   if (!previewArea) return;
 
@@ -110,10 +106,9 @@ function saveCurrentQuestion() {
 
   const inputs = document.querySelectorAll('.answer-input');
   if (!q.answers) q.answers = ['', '', '', ''];
-  inputs.forEach((inp, i) => { 
-    q.answers[i] = inp.value.trim(); 
-  });
+  inputs.forEach((inp, i) => { q.answers[i] = inp.value.trim(); });
 }
+
 // ===== CORRECT ANSWER =====
 function toggleCorrect(el) {
   const options = document.querySelectorAll('.answer-option');
@@ -143,6 +138,9 @@ function handleImageUpload(event) {
     return;
   }
 
+  // เก็บ File object ไว้ส่ง API
+  questions[currentQ]._imageFile = file;
+
   const reader = new FileReader();
   reader.onload = (e) => {
     questions[currentQ].image = e.target.result;
@@ -154,54 +152,96 @@ function handleImageUpload(event) {
   reader.readAsDataURL(file);
 }
 
-// ===== SAVE =====
-function saveQuiz() {
+// ===== SAVE (ยิง API จริง) =====
+async function saveQuiz() {
   try {
     saveCurrentQuestion();
 
     const titleInput = document.getElementById('quiz-title-input');
     const title = titleInput ? titleInput.value.trim() : '';
-    
+
     if (!title) {
       showToast('Please enter a quiz title', 'error');
       return;
     }
 
-    // Validation: Check if at least ONE question is valid
     const hasValidQ = questions.some(q => q.text.length > 0 && q.correct !== null);
     if (!hasValidQ) {
       showToast('Add at least one question with text and a correct answer', 'error');
       return;
     }
 
-    const quizData = {
-      id: 'quiz_' + Date.now(),
-      title: title,
-      image: sessionStorage.getItem('setup_quiz_image') || null,
-      type: sessionStorage.getItem('setup_quiz_type') || 'multiple',
-      questions: questions,
-      createdAt: new Date().toISOString()
-    };
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showToast('Please log in first', 'error');
+      window.location.href = '../auth.html';
+      return;
+    }
 
-    // Save to localStorage
-    const existing = JSON.parse(localStorage.getItem('my_quizzes') || '[]');
-    existing.push(quizData);
-    localStorage.setItem('my_quizzes', JSON.stringify(existing));
-    
+    showToast('Saving...', '');
+
+    // แปลง questions เป็น format ที่ backend ต้องการ
+    const quizType = sessionStorage.getItem('setup_quiz_type') || 'multiple';
+    const formattedQuestions = questions.map(q => {
+      if (quizType === 'multiple') {
+        return {
+          questionText: q.text,
+          questionType: 'multiple-choice',
+          timeLimit: 20,
+          points: 1000,
+          options: q.answers.map((ans, i) => ({
+            text: ans || `Option ${i + 1}`,
+            isCorrect: q.correct === i
+          }))
+        }
+      } else {
+        return {
+          questionText: q.text,
+          questionType: 'open-ended',
+          timeLimit: 20,
+          points: 1000,
+          acceptedAnswers: q.answers.filter(a => a).length > 0
+            ? q.answers.filter(a => a)
+            : [q.answers[q.correct] || '']
+        }
+      }
+    });
+
+    // สร้าง FormData ส่งพร้อมรูปปก
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('isPublic', 'true');
+    formData.append('category', 'General');
+    formData.append('questions', JSON.stringify(formattedQuestions));
+
+
+
+
+    const res = await fetch(`${API_URL}/quizzes`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || 'Save failed', 'error');
+      return;
+    }
+
     // Cleanup
     sessionStorage.removeItem('setup_quiz_name');
-    sessionStorage.removeItem('setup_quiz_image');
     sessionStorage.removeItem('setup_quiz_type');
 
-    showToast('Quiz saved successfully!', 'success');
+    window._coverImageFile = null;
 
-    // Redirect to Explore
-    setTimeout(() => {
-      window.location.href = 'explore.html';
-    }, 1200);
+    showToast('Quiz saved successfully! ✅', 'success');
+    setTimeout(() => { window.location.href = 'explore.html'; }, 1200);
+
   } catch (err) {
     console.error('Save error:', err);
-    alert('An error occurred while saving. Check console.');
+    showToast('Cannot connect to server', 'error');
   }
 }
 
@@ -218,16 +258,11 @@ function goBack() {
 
 // ===== TOAST =====
 function showToast(msg, type = '') {
-  console.log('Toast:', msg, type);
   const toast = document.getElementById('toast');
-  if (!toast) {
-    alert(msg); // Fallback if toast element missing
-    return;
-  }
+  if (!toast) { alert(msg); return; }
   toast.textContent = msg;
   toast.className = 'toast show ' + type;
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => {
-    toast.classList.remove('show');
-  }, 2800);
+  window._toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 2800);
+
 }
