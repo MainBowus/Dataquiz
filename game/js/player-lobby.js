@@ -1,33 +1,52 @@
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+
+let socket = null
+
 document.addEventListener('DOMContentLoaded', () => {
-  const state = JSON.parse(sessionStorage.getItem('player_state'));
-  if (!state) { window.location.href = '../../dashboard/join.html'; return; }
+  const state = JSON.parse(sessionStorage.getItem('player_state'))
+  if (!state) { window.location.href = '../../dashboard/join.html'; return }
 
-  // Load User Info
-  document.getElementById('display-name').textContent = state.name;
-  
-  // Load Quiz Name (from host or setup)
-  const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null');
-  const quizName = quizData?.title || sessionStorage.getItem('setup_quiz_name') || 'NAME QUIZ';
-  document.getElementById('display-quiz-name').textContent = quizName;
+  document.getElementById('display-name').textContent = state.name
 
-  // Clear previous game status if any (ensure clean start)
-  if (localStorage.getItem('game_active_status') === 'true') {
-     // If host already started before we entered, we might need to jump in
-     // But usually we wait for the transition
-  }
+  // เชื่อม Socket.IO
+  socket = io(SOCKET_URL)
 
-  // Initialize player score in global scores
-  const allScores = JSON.parse(localStorage.getItem('player_scores') || '{}');
-  allScores[state.name] = 0;
-  localStorage.setItem('player_scores', JSON.stringify(allScores));
+  socket.on('connect', () => {
+    console.log('Player connected:', socket.id)
+    // Join เกมด้วย PIN และชื่อ
+    const pin = state.pin
+    socket.emit('game:join', { pin, name: state.name })
+  })
 
-  // Listen for Host to press Start
-  const checkStatusInterval = setInterval(() => {
-    const isStarted = localStorage.getItem('game_active_status');
-    if (isStarted === 'true') {
-      clearInterval(checkStatusInterval);
-      sessionStorage.setItem('current_question', '0');
-      window.location.href = 'player-question.html';
+  socket.on('game:joined', (data) => {
+    document.getElementById('display-quiz-name').textContent = data.quizTitle || 'QUIZ'
+    sessionStorage.setItem('total_questions', data.totalQuestions)
+
+    // โหลด quiz data จาก localStorage ที่ host เก็บไว้ (ถ้ามี)
+    const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
+    if (quizData) {
+      document.getElementById('display-quiz-name').textContent = quizData.title
     }
-  }, 1000);
-});
+  })
+
+  socket.on('game:started', (data) => {
+    sessionStorage.setItem('current_question', '0')
+    sessionStorage.setItem('total_questions', data.totalQuestions)
+    window.location.href = 'player-question.html'
+  })
+
+  socket.on('game:error', (data) => {
+    alert(data.message)
+    window.location.href = '../../dashboard/join.html'
+  })
+
+  socket.on('game:host-disconnected', () => {
+    alert('Host has disconnected. Game ended.')
+    window.location.href = '../../dashboard/join.html'
+  })
+
+  // เก็บ socket id ไว้ใช้หน้าถัดไป
+  socket.on('connect', () => {
+    sessionStorage.setItem('socket_id', socket.id)
+  })
+})
