@@ -56,13 +56,5 @@ function buildScoreboard(scoreboard) {
 }
 
 function goNext() {
-  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
-  const nextQ = currentQ + 1
-
-  if (nextQ >= totalQ) {
-    window.location.href = 'host-final.html'
-  } else {
-    sessionStorage.setItem('current_question', nextQ)
-    window.location.href = 'host-question.html'
-  }
+  window.location.href = '../../dashboard/explore.html'
 }
