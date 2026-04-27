@@ -221,8 +221,11 @@ function closeLogoutModal() {
     }, 200);
   }
 }
-function confirmLogout() { localStorage.removeItem('mock_user'); window.location.href = '../index.html'; }
-
+function confirmLogout() {
+  localStorage.clear()
+  sessionStorage.clear()
+  window.location.href = '../index.html';
+}
 function toggleHostDropdown() {
   document.getElementById('host-menu').classList.toggle('show');
   document.querySelector('.modal-host-btn').classList.toggle('active');
