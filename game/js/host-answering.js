@@ -1,89 +1,64 @@
-/* ===========================
-   js/host-answering.js
-   Host Answering Phase Logic
-   =========================== */
+const TOTAL_TIME = 10
 
-// ===== CONFIG =====
-const TOTAL_TIME = 30;
+// ดึง quiz จาก localStorage ที่ host-lobby โหลดไว้
+const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
+const questions = quizData ? quizData.questions : []
 
-const mockQuestions = [
-  {
-    type: 'Multiple Choice',
-    text: 'What is this character called?',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-    answers: ['Milk Dragon', 'Black Dragon', 'Big Dragon', 'Dragon'],
-    correct: 0,
-  },
-  {
-    type: 'Open-ended',
-    text: 'What is the capital of Thailand?',
-    image: 'https://images.unsplash.com/photo-1504966981333-1ac340945d80?q=80&w=800&auto=format&fit=crop',
-    correctAnswer: 'Bangkok'
-  }
-];
+let currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+let totalQ = questions.length
+let timeLeft = TOTAL_TIME
+let timerInterval = null
 
-let currentQ = parseInt(sessionStorage.getItem('current_question') || '0');
-let totalQ    = mockQuestions.length;
-let timeLeft  = TOTAL_TIME;
-let timerInterval = null;
-
-// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  loadQuestionData();
-  startCountdown();
-});
+  loadQuestionData()
+  startCountdown()
+})
 
 function loadQuestionData() {
-  const q = mockQuestions[currentQ];
-  if (!q) return;
+  const q = questions[currentQ]
+  if (!q) return
 
-  // Header
-  document.getElementById('hud-type').textContent = q.type;
-  document.getElementById('hud-progress').textContent = `${currentQ + 1} / ${totalQ}`;
-  
-  // Content
-  document.getElementById('q-text').textContent = q.text;
-  
-  const imgEl = document.getElementById('q-image');
-  const imgWrap = document.getElementById('q-image-wrap');
-  if (q.image) {
-    imgEl.src = q.image;
-    imgWrap.style.display = 'flex';
+  const qType = q.questionType === 'multiple-choice' ? 'Multiple Choice' : 'Open-ended'
+  document.getElementById('hud-type').textContent = qType
+  document.getElementById('hud-progress').textContent = `${currentQ + 1} / ${totalQ}`
+  document.getElementById('q-text').textContent = q.questionText
+
+  const imgEl = document.getElementById('q-image')
+  const imgWrap = document.getElementById('q-image-wrap')
+  if (q.questionImage?.url) {
+    imgEl.src = q.questionImage.url
+    imgWrap.style.display = 'flex'
   } else {
-    imgWrap.style.display = 'none';
+    imgWrap.style.display = 'none'
   }
 
-  // Answers UI
-  const grid = document.getElementById('answers-grid');
-  if (q.type === 'Open-ended') {
-    if (grid) grid.style.display = 'none';
-    // Optionally add a "Waiting for responses..." text
+  const grid = document.getElementById('answers-grid')
+  if (q.questionType === 'open-ended') {
+    if (grid) grid.style.display = 'none'
   } else {
     if (grid) {
-      grid.style.display = 'grid';
-      q.answers.forEach((ans, i) => {
-        const card = document.getElementById(`ans-${i}`);
-        if (card) card.textContent = ans;
-      });
+      grid.style.display = 'grid'
+      q.options.forEach((opt, i) => {
+        const card = document.getElementById(`ans-${i}`)
+        if (card) card.textContent = opt.text
+      })
     }
   }
 }
 
 function startCountdown() {
-  const timerEl = document.getElementById('hud-timer');
-  
+  const timerEl = document.getElementById('hud-timer')
   timerInterval = setInterval(() => {
-    timeLeft--;
-    if (timerEl) timerEl.textContent = `TIME ${timeLeft}`;
-
+    timeLeft--
+    if (timerEl) timerEl.textContent = `TIME ${timeLeft}`
     if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      moveToReveal();
+      clearInterval(timerInterval)
+      moveToReveal()
     }
-  }, 1000);
+  }, 1000)
 }
 
 function moveToReveal() {
-  localStorage.setItem('host_signal', 'reveal_' + currentQ);
-  window.location.href = 'host-reveal.html';
+  localStorage.setItem('host_signal', 'reveal_' + currentQ)
+  window.location.href = 'host-reveal.html'
 }
