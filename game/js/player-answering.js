@@ -1,47 +1,69 @@
 const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
 
 let socket = null
-let time = 30
+let time = 20
 let timerInterval = null
 let answered = false
 const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
 const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+const gamePin = state.pin
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('display-name').textContent = state.name
 
-  socket = io(SOCKET_URL)
+  const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
+  const questions = quizData ? quizData.questions : []
+  const totalQ = questions.length
 
-  socket.on('connect', () => {
-    console.log('Player answering connected')
-  })
+  const progEl = document.getElementById('hud-progress')
+  if (progEl) progEl.textContent = (currentQ + 1) + ' / ' + totalQ
 
-  // รับคำถามจาก server
-  socket.on('game:question', (data) => {
-    if (data.questionIndex !== currentQ) return
+  const statsEl = document.getElementById('hud-stats')
+  if (statsEl) statsEl.textContent = '#' + (state.rank || 1) + ' Score ' + (state.score || 0)
 
-    time = data.timeLimit || 20
-    const totalQ = sessionStorage.getItem('total_questions') || '?'
+  // แสดงข้อมูลจาก localStorage ก่อน (ถ้ามี)
+  const q = questions[currentQ]
+  if (q) {
+    document.getElementById('q-text').textContent = q.questionText
+    time = q.timeLimit || 20
 
-    const progEl = document.getElementById('hud-progress')
-    if (progEl) progEl.textContent = `${currentQ + 1} / ${totalQ}`
-
-    const statsEl = document.getElementById('hud-stats')
-    if (statsEl) statsEl.textContent = `#${state.rank || 1} Score ${state.score || 0}`
-
-    document.getElementById('q-text').textContent = data.questionText
-
-    // รูปภาพ
-    const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
-    const q = quizData?.questions[currentQ]
     const imgWrap = document.getElementById('q-image-wrap')
-    if (q?.questionImage?.url) {
+    if (q.questionImage && q.questionImage.url) {
       document.getElementById('q-image').src = q.questionImage.url
       if (imgWrap) imgWrap.style.display = 'flex'
     } else {
       if (imgWrap) imgWrap.style.display = 'none'
     }
 
+    if (q.questionType === 'open-ended') {
+      document.getElementById('multiple-choice-grid').style.display = 'none'
+      document.getElementById('open-ended-area').style.display = 'flex'
+    } else {
+      document.getElementById('multiple-choice-grid').style.display = 'grid'
+      document.getElementById('open-ended-area').style.display = 'none'
+      q.options.forEach((opt, i) => {
+        const btn = document.getElementById('ans-' + i)
+        if (btn) btn.textContent = opt.text
+      })
+    }
+  }
+
+  startTimer()
+
+  socket = io(SOCKET_URL)
+
+  socket.on('connect', () => {
+    console.log('Player answering connected:', socket.id)
+    // rejoin game
+    if (gamePin) {
+      socket.emit('game:join', { pin: gamePin, name: state.name })
+    }
+  })
+
+  // รับข้อมูลคำถามจาก server (override localStorage)
+  socket.on('game:question', (data) => {
+    if (data.questionIndex !== currentQ) return
+    document.getElementById('q-text').textContent = data.questionText
     if (data.questionType === 'open-ended') {
       document.getElementById('multiple-choice-grid').style.display = 'none'
       document.getElementById('open-ended-area').style.display = 'flex'
@@ -49,25 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('multiple-choice-grid').style.display = 'grid'
       document.getElementById('open-ended-area').style.display = 'none'
       data.options.forEach((opt, i) => {
-        const btn = document.getElementById(`ans-${i}`)
+        const btn = document.getElementById('ans-' + i)
         if (btn) btn.textContent = opt.text
       })
     }
-
-    startTimer()
   })
 
-  // หมดเวลา
-  socket.on('game:time-up', () => {
-    clearInterval(timerInterval)
-    if (!answered) {
-      sessionStorage.setItem('last_answer_result', 'false')
-      sessionStorage.setItem('earned_points', '0')
-    }
-    window.location.href = 'player-result.html'
-  })
-
-  // ผลลัพธ์การตอบ
   socket.on('game:answer-result', (data) => {
     clearInterval(timerInterval)
     sessionStorage.setItem('last_answer_result', data.isCorrect)
@@ -77,13 +86,26 @@ document.addEventListener('DOMContentLoaded', () => {
     sessionStorage.setItem('player_state', JSON.stringify(state))
     window.location.href = 'player-result.html'
   })
+
+  socket.on('game:time-up', () => {
+    clearInterval(timerInterval)
+    if (!answered) {
+      sessionStorage.setItem('last_answer_result', 'false')
+      sessionStorage.setItem('earned_points', '0')
+    }
+    window.location.href = 'player-result.html'
+  })
+
+  socket.on('game:error', (data) => {
+    console.error('Game error:', data.message)
+  })
 })
 
 function startTimer() {
   const timerEl = document.getElementById('hud-timer')
   timerInterval = setInterval(() => {
     time--
-    if (timerEl) timerEl.textContent = `TIME ${time}`
+    if (timerEl) timerEl.textContent = 'TIME ' + time
     if (time <= 0) clearInterval(timerInterval)
   }, 1000)
 }
@@ -91,21 +113,16 @@ function startTimer() {
 function submitAnswer(index) {
   if (answered) return
   answered = true
-  const pin = JSON.parse(sessionStorage.getItem('player_state'))?.pin
-  if (socket && pin) {
-    socket.emit('game:answer', { pin, answerIndex: index })
+  if (socket && gamePin) {
+    socket.emit('game:answer', { pin: gamePin, answerIndex: index })
   }
 }
 
 function submitOpenEnded() {
   if (answered) return
   answered = true
-  const val = document.getElementById('open-ended-input').value.trim()
-  // open-ended ส่ง index 0 ไปก่อน (backend จะตรวจ acceptedAnswers เอง)
-  // เก็บค่าไว้ใช้แสดงผล
-  sessionStorage.setItem('open_answer', val)
-  const pin = JSON.parse(sessionStorage.getItem('player_state'))?.pin
-  if (socket && pin) {
-    socket.emit('game:answer', { pin, answerIndex: 0, openAnswer: val })
+  sessionStorage.setItem('open_answer', document.getElementById('open-ended-input').value)
+  if (socket && gamePin) {
+    socket.emit('game:answer', { pin: gamePin, answerIndex: 0 })
   }
 }
