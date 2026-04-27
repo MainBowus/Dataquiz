@@ -1,11 +1,28 @@
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+
 const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
 const questions = quizData ? quizData.questions : []
-
 let currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
 let totalQ = questions.length
+let socket = null
+const gamePin = sessionStorage.getItem('socket_pin')
 
 document.addEventListener('DOMContentLoaded', () => {
   loadRevealData()
+
+  socket = io(SOCKET_URL)
+  socket.on('connect', () => {
+    // ขอ reveal data จาก server
+    if (gamePin) socket.emit('game:get-reveal', { pin: gamePin })
+  })
+
+  socket.on('game:reveal', (data) => {
+    // อัปเดต bar chart คนตอบ (ถ้ามี element)
+    data.options?.forEach((opt, i) => {
+      const countEl = document.getElementById(`count-${i}`)
+      if (countEl) countEl.textContent = `${opt.count} (${opt.percentage}%)`
+    })
+  })
 })
 
 function loadRevealData() {
@@ -30,7 +47,7 @@ function loadRevealData() {
   if (q.questionType === 'open-ended') {
     const correctAns = q.acceptedAnswers?.join(', ') || '-'
     if (grid) {
-      grid.innerHTML = `<div class="answer-card correct" style="grid-column: 1 / -1; width: 100%; text-align: center;">Correct Answer: ${correctAns}</div>`
+      grid.innerHTML = `<div class="answer-card correct" style="grid-column:1/-1;width:100%;text-align:center;">Correct Answer: ${correctAns}</div>`
       grid.style.display = 'grid'
     }
   } else {
@@ -40,11 +57,7 @@ function loadRevealData() {
         const card = document.getElementById(`ans-${i}`)
         if (card) {
           card.textContent = opt.text
-          if (opt.isCorrect) {
-            card.classList.add('correct')
-          } else {
-            card.classList.remove('correct')
-          }
+          opt.isCorrect ? card.classList.add('correct') : card.classList.remove('correct')
         }
       })
     }
