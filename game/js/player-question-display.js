@@ -7,7 +7,7 @@ let totalQ = questions.length
 document.addEventListener('DOMContentLoaded', () => {
   loadQuestionInfo()
   setTimeout(() => {
-    window.location.href = 'host-answering.html'
+    window.location.href = 'player-answering.html'
   }, 3000)
 })
 
