@@ -6,26 +6,13 @@
   <title>Waiting... – DataQuiz</title>
   <link rel="stylesheet" href="../css/host-question-display.css" />
   <link rel="stylesheet" href="../css/player-lobby.css" />
-  <link rel="stylesheet" href="../css/player-answering.css" />
-  <link rel="stylesheet" href="../css/player-waiting-ans.css?v=2" />
-  <style>
-    /* Ensure HUD and layout match exactly but look "backgrounded" */
-    .hud-box { background: #1c2c43; border: 1.5px solid #000; font-size: 18px; padding: 8px 15px; opacity: 0.6; }
-    .user-badge { font-size: 16px; padding: 8px 20px; opacity: 0.6; }
-    .question-text-box { font-size: 28px; padding: 10px 30px; border: 2px solid #000; opacity: 0.6; }
-    .question-image-area { height: 200px; max-width: 350px; opacity: 0.6; }
-    .ans-btn { opacity: 0.4; pointer-events: none; }
-    @media (max-width: 600px) {
-      .hud-box { font-size: 12px; padding: 5px 10px; }
-      .user-badge { font-size: 12px; padding: 5px 12px; }
-      .question-text-box { font-size: 20px; }
-    }
-  </style>
+  <link rel="stylesheet" href="../css/player-answering.css?v=4" />
+  <link rel="stylesheet" href="../css/player-waiting-ans.css?v=3" />
 </head>
 <body>
 
   <!-- BACKGROUND (Blurred via CSS) -->
-  <div class="blurred-content">
+  <div class="blurred-content no-animation">
       <div class="hq-hud">
         <div class="hud-left">
           <div class="user-badge" id="display-name">Username</div>
@@ -44,11 +31,15 @@
         <div class="question-image-area" id="q-image-wrap">
           <img id="q-image" src="" alt="Question image" />
         </div>
-        <div class="answer-grid">
+        <div class="answer-grid" id="multiple-choice-grid">
           <button class="ans-btn">Answer 1</button>
           <button class="ans-btn">Answer 2</button>
           <button class="ans-btn">Answer 3</button>
           <button class="ans-btn">Answer 4</button>
+        </div>
+        <div class="open-ended-area" id="open-ended-area" style="display: none; width: 100%; max-width: 800px; gap: 20px; flex-direction: column; align-items: center;">
+          <input type="text" placeholder="Type your answer here..." style="width: 100%; padding: 20px; border-radius: 15px; border: 2px solid #000; font-family: 'Archivo Black', sans-serif; font-size: 28px; background: var(--box-bg); color: #fff; text-align: center;" disabled />
+          <button class="ans-btn" style="text-align: center; width: 200px;">SUBMIT</button>
         </div>
       </main>
   </div>

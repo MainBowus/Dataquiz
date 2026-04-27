@@ -1,12 +1,15 @@
 /* ===========================
    js/host-lobby.js
-   Host Lobby Logic - Restored V1
+   Host Lobby Logic - Real-time Joining
    =========================== */
 
 const GAME_PIN = generatePin();
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Reset lobby data for a fresh start
   localStorage.setItem('lobby_players', '[]');
+  localStorage.setItem('player_scores', '{}');
+  localStorage.setItem('game_active_status', 'false');
   localStorage.setItem('current_game_pin', GAME_PIN);
 
   document.getElementById('game-pin').textContent = GAME_PIN;
@@ -16,10 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   generateFunctionalQR();
   listenForPlayers();
-  simulatePlayers(); // Keep simulation for now as requested earlier
 });
 
 function generatePin() {
+  // Generate a random 6-digit PIN
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
@@ -28,34 +31,22 @@ function generateFunctionalQR() {
   if (!qrContainer) return;
   qrContainer.innerHTML = '';
   
-  const baseUrl = window.location.origin;
+  // Use the current window location to build the join URL
+  // This ensures the QR code works on whichever environment the app is running
+  const currentUrl = window.location.href; // e.g., .../game/host/host-lobby.html
+  const baseUrl = currentUrl.split('/game/host/')[0];
   const joinUrl = `${baseUrl}/dashboard/join.html?pin=${GAME_PIN}`;
   
+  console.log("Generating QR for:", joinUrl);
+
   new QRCode(qrContainer, {
     text: joinUrl,
-    width: 100,
-    height: 100,
+    width: 140, // Slightly larger for better scanning
+    height: 140,
     colorDark : "#000000",
     colorLight : "#ffffff",
     correctLevel : QRCode.CorrectLevel.H
   });
-}
-
-function simulatePlayers() {
-  const mockNames = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Casey'];
-  let i = 0;
-  function addNext() {
-    if (i < mockNames.length) {
-      const players = JSON.parse(localStorage.getItem('lobby_players') || '[]');
-      if (!players.includes(mockNames[i])) {
-        players.push(mockNames[i]);
-        localStorage.setItem('lobby_players', JSON.stringify(players));
-      }
-      i++;
-      setTimeout(addNext, 1500);
-    }
-  }
-  setTimeout(addNext, 2000);
 }
 
 function listenForPlayers() {
@@ -79,14 +70,27 @@ function listenForPlayers() {
       grid.style.display = 'none';
     }
   }
+  // Check for new players every second
   setInterval(updatePlayerList, 1000);
 }
 
 function startGame() {
+  const players = JSON.parse(localStorage.getItem('lobby_players') || '[]');
+  if (players.length === 0) {
+    alert("Please wait for at least one player to join!");
+    return;
+  }
+
   const btn = document.getElementById('start-btn');
   btn.disabled = true;
   btn.textContent = 'Starting...';
+  
   sessionStorage.setItem('game_pin', GAME_PIN);
   sessionStorage.setItem('current_question', '0');
+  
+  // Signal players that game started
+  localStorage.setItem('game_active_status', 'true');
+  localStorage.setItem('host_signal', 'question_0');
+  
   setTimeout(() => { window.location.href = 'host-question.html'; }, 800);
 }

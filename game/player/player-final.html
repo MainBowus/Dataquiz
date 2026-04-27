@@ -1,19 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Final Rank – DataQuiz</title>
-  <link rel="stylesheet" href="../css/player-final.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Final Summary – DataQuiz</title>
+  <link rel="stylesheet" href="../css/host-question-display.css" />
+  <link rel="stylesheet" href="../css/player-lobby.css" />
+  <link rel="stylesheet" href="../css/player-final.css?v=3" />
 </head>
 <body>
-  <main class="player-main">
-    <div class="final-content">
-      <div class="rank-badge">1st</div>
-      <h1>Congratulations!</h1>
-      <p>You finished with 12,500 points</p>
-      <button class="back-btn" onclick="location.href='../../index.html'">Back to Home</button>
+
+  <!-- Background -->
+  <div class="hq-bg" style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(135deg, #05162a 0%, #0d2137 50%, #162e4a 100%);"></div>
+
+  <!-- PLAYER HUD -->
+  <div class="hq-hud">
+    <div class="hud-left">
+      <div class="user-badge" id="display-name">Username</div>
     </div>
+    <div class="hud-right">
+      <div class="hud-box" id="hud-stats">#1 Score</div>
+    </div>
+  </div>
+
+  <main class="player-main">
+    
+    <!-- CELEBRATION IMAGE -->
+    <div class="final-image-container">
+      <img src="../../assets/images/player-final.png" alt="Celebration" class="final-img" />
+    </div>
+
+    <!-- RANK TEXT -->
+    <div class="final-text-section">
+      <h1 class="finished-text">You finished <span id="final-rank">00th</span></h1>
+      <p class="thanks-text">Thank you for playing!</p>
+    </div>
+
   </main>
+
+  <script src="../js/player-final.js"></script>
 </body>
 </html>

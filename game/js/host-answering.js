@@ -13,6 +13,12 @@ const mockQuestions = [
     image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
     answers: ['Milk Dragon', 'Black Dragon', 'Big Dragon', 'Dragon'],
     correct: 0,
+  },
+  {
+    type: 'Open-ended',
+    text: 'What is the capital of Thailand?',
+    image: 'https://images.unsplash.com/photo-1504966981333-1ac340945d80?q=80&w=800&auto=format&fit=crop',
+    correctAnswer: 'Bangkok'
   }
 ];
 
@@ -47,11 +53,20 @@ function loadQuestionData() {
     imgWrap.style.display = 'none';
   }
 
-  // Answers
-  q.answers.forEach((ans, i) => {
-    const card = document.getElementById(`ans-${i}`);
-    if (card) card.textContent = ans;
-  });
+  // Answers UI
+  const grid = document.getElementById('answers-grid');
+  if (q.type === 'Open-ended') {
+    if (grid) grid.style.display = 'none';
+    // Optionally add a "Waiting for responses..." text
+  } else {
+    if (grid) {
+      grid.style.display = 'grid';
+      q.answers.forEach((ans, i) => {
+        const card = document.getElementById(`ans-${i}`);
+        if (card) card.textContent = ans;
+      });
+    }
+  }
 }
 
 function startCountdown() {
@@ -69,5 +84,6 @@ function startCountdown() {
 }
 
 function moveToReveal() {
+  localStorage.setItem('host_signal', 'reveal_' + currentQ);
   window.location.href = 'host-reveal.html';
 }
