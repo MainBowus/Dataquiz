@@ -8,15 +8,24 @@ const gamePin = sessionStorage.getItem('socket_pin')
 document.addEventListener('DOMContentLoaded', () => {
   const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
   const progEl = document.getElementById('hud-progress')
-  if (progEl) progEl.textContent = `${currentQ + 1} / ${totalQ}`
+  if (progEl) progEl.textContent = (currentQ + 1) + ' / ' + totalQ
 
   socket = io(SOCKET_URL)
+
   socket.on('connect', () => {
-    if (gamePin) socket.emit('game:get-scoreboard', { pin: gamePin })
+    console.log('Host scoreboard connected:', socket.id)
+    if (gamePin) {
+      socket.emit('game:reconnect-host', { pin: gamePin })
+      socket.emit('game:get-scoreboard', { pin: gamePin })
+    }
   })
 
   socket.on('game:scoreboard', (data) => {
     buildScoreboard(data.scoreboard)
+  })
+
+  socket.on('game:error', (data) => {
+    console.error('Game error:', data.message)
   })
 })
 
@@ -30,15 +39,14 @@ function buildScoreboard(scoreboard) {
   top4.forEach((player, index) => {
     const rank = index + 1
     const card = document.createElement('div')
-    card.className = `sb-card ${rank === 1 ? 'first' : ''}`
-    card.innerHTML = `
-      <div class="sb-rank-num">${rank}</div>
-      <div class="sb-username">${player.name}</div>
-      <div class="sb-score-group">
-        <span class="sb-score-label">Score</span>
-        <div class="sb-score-val">${player.score}</div>
-      </div>
-    `
+    card.className = 'sb-card ' + (rank === 1 ? 'first' : '')
+    card.innerHTML =
+      '<div class="sb-rank-num">' + rank + '</div>' +
+      '<div class="sb-username">' + player.name + '</div>' +
+      '<div class="sb-score-group">' +
+        '<span class="sb-score-label">Score</span>' +
+        '<div class="sb-score-val">' + player.score + '</div>' +
+      '</div>'
     container.appendChild(card)
   })
 
