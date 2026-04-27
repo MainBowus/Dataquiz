@@ -1,4 +1,4 @@
-const SOCKET_URL = 'http://localhost:5000'
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
 
 const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
 const questions = quizData ? quizData.questions : []
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Host answering connected:', socket.id)
     if (gamePin) {
       socket.emit('game:reconnect-host', { pin: gamePin })
-      // socket.emit('game:next-question', { pin: gamePin }) // ออกไปเพื่อให้ server คุมจังหวะเอง
+      socket.emit('game:next-question', { pin: gamePin })
     }
   })
 
