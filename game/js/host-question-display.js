@@ -1,37 +1,38 @@
-const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
-const questions = quizData ? quizData.questions : []
-
-let currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
-let totalQ = questions.length
+/* ===========================
+   js/host-question.js
+   Host Countdown Screen Logic
+   =========================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadQuestionInfo()
-  setTimeout(() => {
-    window.location.href = 'host-answering.html'
-  }, 3000)
-})
+  // Load progress
+  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0');
+  const displayNum = currentQ + 1;
+  
+  const qLabel = document.getElementById('display-q-number');
+  if (qLabel) qLabel.textContent = `Question ${displayNum}`;
 
-function loadQuestionInfo() {
-  const q = questions[currentQ]
-  if (!q) return
+  startCountdown();
+});
 
-  const qType = q.questionType === 'multiple-choice' ? 'Multiple Choice' : 'Open-ended'
+function startCountdown() {
+  let count = 3;
+  const countEl = document.getElementById('gr-countdown');
+  if (!countEl) return;
 
-  const typeEl = document.getElementById('hud-type')
-  if (typeEl) typeEl.textContent = qType
+  countEl.textContent = count;
 
-  const progressEl = document.getElementById('hud-progress')
-  if (progressEl) progressEl.textContent = `${currentQ + 1} / ${totalQ}`
-
-  const textEl = document.getElementById('q-text')
-  if (textEl) textEl.textContent = q.questionText
-
-  const imgEl = document.getElementById('q-image')
-  const imgWrap = document.getElementById('q-image-wrap')
-  if (q.questionImage?.url) {
-    imgEl.src = q.questionImage.url
-    imgWrap.style.display = 'flex'
-  } else {
-    if (imgWrap) imgWrap.style.display = 'none'
-  }
+  const interval = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(interval);
+      // Move to display page
+      window.location.href = 'host-question-display.html';
+    } else {
+      countEl.textContent = count;
+      // Re-trigger animation
+      countEl.style.animation = 'none';
+      void countEl.offsetWidth;
+      countEl.style.animation = 'bounceTick 1s infinite';
+    }
+  }, 1000);
 }
