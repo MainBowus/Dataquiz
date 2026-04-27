@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'player-question.html'
   })
 
-  socket.on('game:ended', () => {
+  socket.on('game:final-results', () => {
     window.location.href = 'player-final.html'
   })
 
