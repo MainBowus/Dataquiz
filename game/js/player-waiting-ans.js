@@ -1,9 +1,10 @@
 const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
 
-document.addEventListener('DOMContentLoaded', () => {
-  const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
-  const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
+const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+const gamePin = state.pin
 
+document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('display-name').textContent = state.name
 
   const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
@@ -11,16 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalQ = questions.length
 
   const progEl = document.getElementById('hud-progress')
-  if (progEl) progEl.textContent = `${currentQ + 1} / ${totalQ}`
+  if (progEl) progEl.textContent = (currentQ + 1) + ' / ' + totalQ
 
   const statsEl = document.getElementById('hud-stats')
-  if (statsEl) statsEl.textContent = `#${state.rank || 1} Score ${state.score || 0}`
+  if (statsEl) statsEl.textContent = '#' + (state.rank || 1) + ' Score ' + (state.score || 0)
 
   const q = questions[currentQ]
   if (q) {
     document.getElementById('q-text').textContent = q.questionText
     const imgWrap = document.getElementById('q-image-wrap')
-    if (q.questionImage?.url) {
+    if (q.questionImage && q.questionImage.url) {
       document.getElementById('q-image').src = q.questionImage.url
       if (imgWrap) imgWrap.style.display = 'flex'
     } else {
@@ -37,11 +38,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // รอ time-up จาก server
   const socket = io(SOCKET_URL)
+
+  socket.on('connect', () => {
+    if (gamePin) socket.emit('game:join', { pin: gamePin, name: state.name })
+  })
+
   socket.on('game:time-up', () => {
     window.location.href = 'player-result.html'
   })
+
   socket.on('game:answer-result', (data) => {
     sessionStorage.setItem('last_answer_result', data.isCorrect)
     sessionStorage.setItem('earned_points', data.earnedPoints)
