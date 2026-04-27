@@ -9,12 +9,8 @@
   <link rel="stylesheet" href="../css/player-final.css?v=3" />
 </head>
 <body>
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <script src="../js/host-lobby.js"></script>
-  <!-- Background -->
-  <div class="hq-bg" style="position: fixed; inset: 0; z-index: -1; background: linear-gradient(135deg, #05162a 0%, #0d2137 50%, #162e4a 100%);"></div>
+  <div class="hq-bg" style="position:fixed;inset:0;z-index:-1;background:linear-gradient(135deg,#05162a 0%,#0d2137 50%,#162e4a 100%);"></div>
 
-  <!-- PLAYER HUD -->
   <div class="hq-hud">
     <div class="hud-left">
       <div class="user-badge" id="display-name">Username</div>
@@ -25,20 +21,13 @@
   </div>
 
   <main class="player-main">
-    
-    <!-- CELEBRATION IMAGE -->
-    <div class="final-image-container">
-      <img src="../../assets/images/player-final.png" alt="Celebration" class="final-img" />
-    </div>
-
-    <!-- RANK TEXT -->
     <div class="final-text-section">
       <h1 class="finished-text">You finished <span id="final-rank">00th</span></h1>
       <p class="thanks-text">Thank you for playing!</p>
     </div>
-
   </main>
 
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   <script src="../js/player-final.js"></script>
 </body>
 </html>
