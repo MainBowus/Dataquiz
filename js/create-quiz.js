@@ -27,18 +27,24 @@ function closeLogoutModal() {
   modal.style.opacity = '0';
   setTimeout(() => modal.style.display = 'none', 200);
 }
+
 function confirmLogout() {
-  localStorage.removeItem('mock_user');
+  localStorage.clear()
+  sessionStorage.clear()
   window.location.href = '../index.html';
 }
 
 function handleImage(e) {
   const file = e.target.files[0];
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = (event) => {
-    imageData = event.target.result;
-    document.getElementById('image-preview').src = imageData;
+    // เก็บ base64 ใน sessionStorage แทน
+    sessionStorage.setItem('setup_quiz_image_b64', event.target.result);
+    sessionStorage.setItem('setup_quiz_image_type', file.type);
+
+    document.getElementById('image-preview').src = event.target.result;
     document.getElementById('image-preview').style.display = 'block';
     document.getElementById('image-preview-text').style.display = 'none';
   };
@@ -52,24 +58,20 @@ function setType(type) {
 }
 
 function startCreating() {
-  // 1. Check login
-  const user = localStorage.getItem('mock_user');
-  if (!user) {
+  const token = localStorage.getItem('token');
+  if (!token) {
     alert('Please log in first to create a quiz!');
     window.location.href = '../auth.html';
     return;
   }
 
-  // 2. Validate inputs
   const name = document.getElementById('quiz-name').value.trim();
   if (!name) { alert('Please enter a quiz name'); return; }
-  if (!imageData) { alert('Please upload a quiz image'); return; }
+  if (!sessionStorage.getItem('setup_quiz_image_b64')) { alert('Please upload a quiz image'); return; }
   if (!selectedType) { alert('Please select a quiz type'); return; }
 
-  // Save setup data
   sessionStorage.setItem('setup_quiz_name', name);
-  sessionStorage.setItem('setup_quiz_image', imageData);
   sessionStorage.setItem('setup_quiz_type', selectedType);
-  
+
   window.location.href = 'create-question.html';
 }
