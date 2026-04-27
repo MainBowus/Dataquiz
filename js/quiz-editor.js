@@ -230,30 +230,19 @@ async function saveQuiz() {
       }
     });
 
-    // สร้าง FormData ส่งพร้อมรูปปก
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('isPublic', 'true');
-    formData.append('category', 'General');
-    formData.append('questions', JSON.stringify(formattedQuestions));
-
-    try {
-      const imageB64 = sessionStorage.getItem('setup_quiz_image_b64')
-      const imageType = sessionStorage.getItem('setup_quiz_image_type') || 'image/jpeg'
-      if (imageB64) {
-        const fetchRes = await fetch(imageB64)
-        const blob = await fetchRes.blob()
-        const ext = imageType.split('/')[1] || 'jpg'
-        formData.append('cover', blob, `cover.${ext}`)
-      }
-    } catch (imgErr) {
-      console.warn('Cover image skipped:', imgErr.message)
-    }
-
     const res = await fetch(`${API_URL}/quizzes`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        description: '',
+        isPublic: true,
+        category: 'General',
+        questions: formattedQuestions
+      })
     });
 
     if (res.status === 502 || res.status === 503) {
