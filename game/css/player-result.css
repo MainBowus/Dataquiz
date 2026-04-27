@@ -39,7 +39,7 @@ body {
 
 .diagonal-banner span {
   font-family: 'Archivo Black', sans-serif;
-  font-size: clamp(60px, 15vw, 150px);
+  font-size: clamp(30px, 8vw, 80px);
   color: #000;
   letter-spacing: 5px;
 }
