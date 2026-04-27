@@ -1,25 +1,30 @@
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+
 const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
 const totalQ = quizData ? quizData.questions.length : 0
+let socket = null
+const gamePin = sessionStorage.getItem('socket_pin')
 
 document.addEventListener('DOMContentLoaded', () => {
   const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
   const progEl = document.getElementById('hud-progress')
   if (progEl) progEl.textContent = `${currentQ + 1} / ${totalQ}`
 
-  buildScoreboard()
-  setInterval(buildScoreboard, 2000)
+  socket = io(SOCKET_URL)
+  socket.on('connect', () => {
+    if (gamePin) socket.emit('game:get-scoreboard', { pin: gamePin })
+  })
+
+  socket.on('game:scoreboard', (data) => {
+    buildScoreboard(data.scoreboard)
+  })
 })
 
-function buildScoreboard() {
+function buildScoreboard(scoreboard) {
   const container = document.getElementById('sb-list')
   if (!container) return
 
-  const scoresData = JSON.parse(localStorage.getItem('player_scores') || '{}')
-  const sorted = Object.entries(scoresData)
-    .map(([name, score]) => ({ name, score }))
-    .sort((a, b) => b.score - a.score)
-
-  const top4 = sorted.slice(0, 4)
+  const top4 = scoreboard.slice(0, 4)
   container.innerHTML = ''
 
   top4.forEach((player, index) => {
@@ -38,7 +43,7 @@ function buildScoreboard() {
   })
 
   if (top4.length === 0) {
-    container.innerHTML = '<div style="text-align:center; font-size:24px; margin-top:50px;">Waiting for players...</div>'
+    container.innerHTML = '<div style="text-align:center;font-size:24px;margin-top:50px;">Waiting for players...</div>'
   }
 }
 
@@ -47,11 +52,9 @@ function goNext() {
   const nextQ = currentQ + 1
 
   if (nextQ >= totalQ) {
-    localStorage.setItem('host_signal', 'game_finished')
     window.location.href = 'host-final.html'
   } else {
     sessionStorage.setItem('current_question', nextQ)
-    localStorage.setItem('host_signal', 'question_' + nextQ)
     window.location.href = 'host-question.html'
   }
 }
