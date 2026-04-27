@@ -44,10 +44,10 @@ function loadRevealData() {
   const imgEl = document.getElementById('q-image')
   const imgWrap = document.getElementById('q-image-wrap')
   if (q.questionImage && q.questionImage.url) {
-    imgEl.src = q.questionImage.url
-    imgWrap.style.display = 'flex'
+    if (imgEl) imgEl.src = q.questionImage.url
+    if (imgWrap) imgWrap.style.display = 'flex'
   } else {
-    imgWrap.style.display = 'none'
+    if (imgWrap) imgWrap.style.display = 'none'
   }
 
   const grid = document.getElementById('answers-grid')
