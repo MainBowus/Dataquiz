@@ -1,14 +1,15 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const user = JSON.parse(localStorage.getItem('mock_user'));
-  if (!user) { window.location.href = '../auth.html'; return; }
+const API_URL = 'https://backend-dataquiz.onrender.com/api'
 
-  // Fill info
+document.addEventListener('DOMContentLoaded', async () => {
+  const user = JSON.parse(localStorage.getItem('mock_user'))
+  const token = localStorage.getItem('token')
+  if (!user || !token) { window.location.href = '../auth.html'; return; }
+
   document.getElementById('p-name').textContent = user.name;
-  document.getElementById('p-email-top').textContent = user.email;
-  document.getElementById('p-email').textContent = user.email;
+  document.getElementById('p-email-top').textContent = user.email || '-';
+  document.getElementById('p-email').textContent = user.email || '-';
   document.getElementById('p-ava').textContent = user.name[0].toUpperCase();
 
-  // Navbar
   const navRight = document.getElementById('nav-right');
   if (navRight) {
     navRight.innerHTML = `
@@ -22,24 +23,78 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
   }
 
-  // Load Quizzes
-  const grid = document.getElementById('my-quizzes-grid');
-  if (grid) {
-    const myQuizzes = JSON.parse(localStorage.getItem('my_quizzes') || '[]');
-    if (myQuizzes.length === 0) {
-      grid.innerHTML = '<p style="opacity:0.5; grid-column: span 4; text-align:center; padding:40px;">You haven\'t created any quizzes yet.</p>';
-    } else {
-      myQuizzes.forEach(q => {
-        const div = document.createElement('div');
-        div.className = 'rec-card';
-        if (q.image) div.style.backgroundImage = `url('${q.image}')`;
-        div.innerHTML = `<span>${q.title}</span>`;
-        grid.appendChild(div);
-      });
-    }
-  }
-});
+  const grid = document.getElementById('my-quizzes-grid')
+  if (!grid) return
 
+  grid.innerHTML = '<p style="opacity:0.5; grid-column: span 4; text-align:center; padding:40px;">Loading...</p>'
+
+  try {
+    const res = await fetch(`${API_URL}/my-quizzes`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+
+    if (!res.ok) throw new Error('Failed to fetch')
+
+    const quizzes = await res.json()
+
+    if (quizzes.length === 0) {
+      grid.innerHTML = '<p style="opacity:0.5; grid-column: span 4; text-align:center; padding:40px;">You haven\'t created any quizzes yet.</p>'
+      return
+    }
+
+    grid.innerHTML = ''
+    quizzes.forEach(q => {
+      const div = document.createElement('div')
+      div.className = 'rec-card'
+      if (q.coverImage?.url) {
+        div.style.backgroundImage = `url('${q.coverImage.url}')`
+      }
+      div.innerHTML = `
+        <span>${q.title}</span>
+        <small style="display:block;font-size:11px;opacity:0.7;margin-top:4px;">${q.questions.length} questions</small>
+      `
+      div.onclick = () => openQuizModal(q)
+      grid.appendChild(div)
+    })
+
+  } catch (err) {
+    console.error(err)
+    grid.innerHTML = '<p style="opacity:0.5; grid-column: span 4; text-align:center; padding:40px;">Failed to load quizzes.</p>'
+  }
+})
+
+// ===== QUIZ MODAL =====
+function openQuizModal(quiz) {
+  const modal = document.getElementById('quiz-modal')
+  if (!modal) return
+
+  document.getElementById('modal-title').textContent = quiz.title
+  document.getElementById('modal-q-num').textContent = quiz.questions.length
+
+  const previewEl = document.querySelector('.modal-preview')
+  if (previewEl) {
+    previewEl.style.backgroundImage = quiz.coverImage?.url ? `url('${quiz.coverImage.url}')` : ''
+  }
+
+  window._selectedQuizId = quiz._id
+
+  modal.classList.add('active')
+  document.body.style.overflow = 'hidden'
+}
+
+function closeQuizModal() {
+  const modal = document.getElementById('quiz-modal')
+  if (modal) modal.classList.remove('active')
+  document.body.style.overflow = ''
+}
+
+function hostGame() {
+  if (window._selectedQuizId) {
+    window.location.href = `../game/host/host-lobby.html?quizId=${window._selectedQuizId}`
+  }
+}
+
+// ===== DROPDOWN =====
 function toggleDropdown(e) {
   e.stopPropagation();
   const d = document.getElementById('user-dropdown');
@@ -48,30 +103,15 @@ function toggleDropdown(e) {
   }
 }
 window.onclick = () => {
-    const d = document.getElementById('user-dropdown');
-    if (d) d.style.display = 'none';
+  const d = document.getElementById('user-dropdown');
+  if (d) d.style.display = 'none';
 };
 
+// ===== LOGOUT =====
 function showLogoutModal() {
-  if (!document.getElementById('logout-modal')) {
-    const modal = document.createElement('div');
-    modal.id = 'logout-modal';
-    modal.style = "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;transition:opacity 0.2s;";
-    modal.innerHTML = `
-      <div style="background:white;border-radius:24px;padding:40px;width:320px;text-align:center;transform:scale(0.9);transition:transform 0.2s;">
-        <h3 style="font-family:'Archivo Black';font-size:22px;margin-bottom:15px;color:#333;">Log out?</h3>
-        <p style="font-family:'Nunito';font-weight:600;color:#666;margin-bottom:30px;">Are you sure you want to log out?</p>
-        <div style="display:flex;gap:10px;justify-content:center;">
-          <button onclick="closeLogoutModal()" style="padding:10px 20px;border-radius:50px;border:none;background:#eee;color:#333;font-family:'Archivo Black';cursor:pointer;">Cancel</button>
-          <button onclick="confirmLogout()" style="padding:10px 20px;border-radius:50px;border:none;background:#ff3b5c;color:#fff;font-family:'Archivo Black';cursor:pointer;">Log out</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
   const modal = document.getElementById('logout-modal');
   modal.style.display = 'flex';
-  setTimeout(() => { modal.style.opacity = '1'; modal.firstElementChild.style.transform = 'scale(1)'; }, 10);
+  setTimeout(() => { modal.style.opacity = '1'; }, 10);
   document.body.style.overflow = 'hidden';
 }
 
@@ -79,8 +119,16 @@ function closeLogoutModal() {
   const modal = document.getElementById('logout-modal');
   if (modal) {
     modal.style.opacity = '0';
-    modal.firstElementChild.style.transform = 'scale(0.9)';
     setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = ''; }, 200);
   }
 }
-function confirmLogout() { localStorage.removeItem('mock_user'); window.location.href = '../index.html'; }
+
+function confirmLogout() {
+  localStorage.removeItem('mock_user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '../index.html';
+}
+
+document.getElementById('quiz-modal')?.addEventListener('click', function(e) { if (e.target === this) closeQuizModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeQuizModal(); });
