@@ -1,11 +1,11 @@
-const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+const SOCKET_URL = 'https://backend-dataquiz.onrender.com';
 
 let socket = null
 let time = 20
 let timerInterval = null
 let answered = false
 const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
-const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
+let currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
 const gamePin = state.pin
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const statsEl = document.getElementById('hud-stats')
   if (statsEl) statsEl.textContent = '#' + (state.rank || 1) + ' Score ' + (state.score || 0)
 
-  // แสดงข้อมูลจาก localStorage ก่อน (ถ้ามี)
   const q = questions[currentQ]
   if (q) {
     document.getElementById('q-text').textContent = q.questionText
@@ -50,30 +49,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   startTimer()
 
-  socket = io(SOCKET_URL)
+  // บังคับใช้ websocket เพื่อความเสถียรบน Render
+  socket = io(SOCKET_URL, { transports: ['websocket'] })
 
   socket.on('connect', () => {
-    console.log('Player answering connected:', socket.id)
-    // rejoin game
+    console.log('Player connected:', socket.id)
     if (gamePin) {
       socket.emit('game:join', { pin: gamePin, name: state.name })
     }
   })
 
-  // รับข้อมูลคำถามจาก server (override localStorage)
   socket.on('game:question', (data) => {
-    if (data.questionIndex !== currentQ) return
-    document.getElementById('q-text').textContent = data.questionText
-    if (data.questionType === 'open-ended') {
-      document.getElementById('multiple-choice-grid').style.display = 'none'
-      document.getElementById('open-ended-area').style.display = 'flex'
-    } else {
-      document.getElementById('multiple-choice-grid').style.display = 'grid'
-      document.getElementById('open-ended-area').style.display = 'none'
-      data.options.forEach((opt, i) => {
-        const btn = document.getElementById('ans-' + i)
-        if (btn) btn.textContent = opt.text
-      })
+    if (data.questionIndex > currentQ) {
+      sessionStorage.setItem('current_question', data.questionIndex)
+      window.location.href = 'player-question.html'
+      return
     }
   })
 
@@ -94,10 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
       sessionStorage.setItem('earned_points', '0')
     }
     window.location.href = 'player-result.html'
-  })
-
-  socket.on('game:error', (data) => {
-    console.error('Game error:', data.message)
   })
 })
 

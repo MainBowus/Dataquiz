@@ -1,4 +1,4 @@
-const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+const SOCKET_URL = 'http://localhost:5000'
 
 const state = JSON.parse(sessionStorage.getItem('player_state')) || { name: 'Username', score: 0, rank: 1 }
 const currentQ = parseInt(sessionStorage.getItem('current_question') || '0')
@@ -42,6 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   socket.on('connect', () => {
     if (gamePin) socket.emit('game:join', { pin: gamePin, name: state.name })
+  })
+
+  socket.on('game:question', (data) => {
+    if (data.questionIndex > currentQ) {
+      sessionStorage.setItem('current_question', data.questionIndex)
+      window.location.href = 'player-question.html'
+    }
   })
 
   socket.on('game:time-up', () => {

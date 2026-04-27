@@ -1,4 +1,4 @@
-const SOCKET_URL = 'https://backend-dataquiz.onrender.com'
+const SOCKET_URL = 'http://localhost:5000'
 
 const quizData = JSON.parse(localStorage.getItem('current_quiz') || 'null')
 const questions = quizData ? quizData.questions : []
